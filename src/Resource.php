@@ -2,7 +2,7 @@
 
 namespace silverorange;
 
-class Resource
+class Resource extends ResourceIdentifier
 {
     // {{{ protected properties
 
@@ -38,18 +38,21 @@ class Resource
                     $this->relationships[$key] = null;
                 } elseif (array_key_exists('id', $resource['data'])) {
                     $this->relationships[$key] = new ToOneRelationship(
-                        new ResourcePointer(
+                        new ResourceIdentifier(
                             $this->store,
                             $resource['data']['type'],
                             $resource['data']['id']
                         )
                     );
                 } else {
-                    $collection = new ResourcePointerCollection();
-
+                    $collection = null;
                     foreach ($resource['data'] as $data) {
+                        if (!$collection instanceof ResourceIdentifierCollection) {
+                            $collection = new ResourceIdentifierCollection($data['type']);
+                        }
+
                         $collection->append(
-                            new ResourcePointer(
+                            new ResourceIdentifier(
                                 $this->store,
                                 $data['type'],
                                 $data['id']
@@ -98,19 +101,19 @@ class Resource
     }
 
     // }}}
-    // {{{ public function getId()
-
-    public function getId()
-    {
-        return $this->id;
-    }
-
-    // }}}
     // {{{ public function getType()
 
     public function getType()
     {
         return $this->type;
+    }
+
+    // }}}
+    // {{{ public function getId()
+
+    public function getId()
+    {
+        return $this->id;
     }
 
     // }}}

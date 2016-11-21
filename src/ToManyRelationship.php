@@ -6,14 +6,16 @@ class ToManyRelationship
 {
     // {{{ protected properties
 
-    protected $pointer_collection;
+    protected $resource_collection;
 
     // }}}
     // {{{ public function __construct()
 
-    public function __construct(ResourcePointerCollection $pointer_collection)
-    {
-        $this->pointer_collection = $pointer_collection;
+    public function __construct(
+        ResourceIdentifierCollection $resource_collection
+    ) {
+    
+        $this->resource_collection = $resource_collection;
     }
 
     // }}}
@@ -21,15 +23,15 @@ class ToManyRelationship
 
     public function get()
     {
-        return $this->pointer_collection;
+        return $this->resource_collection;
     }
 
     // }}}
     // {{{ public function set()
 
-    public function set(ResourcePointerCollection $pointer_collection)
+    public function set(ResourceIdentifierCollection $resource_collection)
     {
-        $this->pointer_collection = $pointer_collection;
+        $this->resource_collection = $resource_collection;
     }
 
     // }}}

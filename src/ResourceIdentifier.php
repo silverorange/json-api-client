@@ -2,14 +2,13 @@
 
 namespace silverorange;
 
-class ResourcePointer
+class ResourceIdentifier
 {
     // {{{ protected properties
 
+    protected $store;
     protected $type;
     protected $id;
-    protected $store;
-    protected $resource;
 
     // }}}
     // {{{ public function __construct()
@@ -38,34 +37,11 @@ class ResourcePointer
     }
 
     // }}}
-    // {{{ public function get()
-
-    public function get($key)
-    {
-        return $this->getResource()->get($key);
-    }
-
-    // }}}
-    // {{{ public function set()
-
-    public function set($key, $value)
-    {
-        $this->getResource()->set($key, $value);
-    }
-
-    // }}}
     // {{{ public function getResource()
 
     public function getResource()
     {
-        if (!$this->resource instanceof Resource) {
-            $this->resource = $this->store->findResource(
-                $this->getType(),
-                $this->getId()
-            );
-        }
-
-        return $this->resource;
+        return $this->store->find($this->getType(), $this->getId());
     }
 
     // }}}

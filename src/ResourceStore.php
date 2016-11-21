@@ -59,55 +59,6 @@ class ResourceStore
 
     public function findAll($type)
     {
-        $resources = $this->findAllResources($type);
-
-        $collection = new ResourcePointerCollection();
-        foreach ($resources as $resource) {
-            $collection->append(
-                new ResourcePointer(
-                    $this,
-                    $resource->getType(),
-                    $resource->getId()
-                )
-            );
-        }
-
-        return $collection;
-    }
-
-    // }}}
-    // {{{ public function find()
-
-    public function find($type, $id)
-    {
-        $resource = $this->findResource($type, $id);
-
-        return new ResourcePointer(
-            $this,
-            $resource->getType(),
-            $resource->getId()
-        );
-    }
-
-    // }}}
-    // {{{ public function save()
-
-    public function save(ResourcePointer $pointer)
-    {
-        $resource = $this->saveResource($pointer->getResource());
-
-        return new ResourcePointer(
-            $this,
-            $resource->getType(),
-            $resource->getId()
-        );
-    }
-
-    // }}}
-    // {{{ public function findAllResources()
-
-    public function findAllResources($type)
-    {
         $request = new Request(
             'GET',
             $this->getResourceAddress($type)
@@ -117,7 +68,7 @@ class ResourceStore
 
         $body = json_decode($result->getBody(), true);
 
-        $collection = new ResourceCollection();
+        $collection = new ResourceIdentifierCollection($type);
         foreach ($body['data'] as $data) {
             $resource = new Resource($this);
             $resource->decode(json_encode(['data' => $data]));
@@ -135,9 +86,9 @@ class ResourceStore
     }
 
     // }}}
-    // {{{ public function findResource()
+    // {{{ public function find()
 
-    public function findResource($type, $id)
+    public function find($type, $id)
     {
         if (!$this->hasResource($type, $id)) {
             $request = new Request(
@@ -157,9 +108,9 @@ class ResourceStore
     }
 
     // }}}
-    // {{{ public function saveResource()
+    // {{{ public function save()
 
-    public function saveResource(Resource $resource)
+    public function save(Resource $resource)
     {
         $request = new Request(
             'PATCH',

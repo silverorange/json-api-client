@@ -6,26 +6,14 @@ class ToOneRelationship
 {
     // {{{ protected properties
 
-    protected $type;
-    protected $id;
-    protected $pointer;
+    protected $resource;
 
     // }}}
     // {{{ public function __construct()
 
-    public function __construct(ResourcePointer $pointer)
+    public function __construct(ResourceIdentifier $resource)
     {
-        $this->type = $pointer->getType();
-        $this->id = $pointer->getId();
-        $this->pointer = $pointer;
-    }
-
-    // }}}
-    // {{{ public function getId()
-
-    public function getId()
-    {
-        return $this->id;
+        $this->resource = $resource;
     }
 
     // }}}
@@ -33,7 +21,15 @@ class ToOneRelationship
 
     public function getType()
     {
-        return $this->type;
+        return $this->resource->getType();
+    }
+
+    // }}}
+    // {{{ public function getId()
+
+    public function getId()
+    {
+        return $this->resource->getId();
     }
 
     // }}}
@@ -41,17 +37,19 @@ class ToOneRelationship
 
     public function get()
     {
-        return $this->pointer;
+        if ($this->resource instanceof ResourceIdentifier) {
+            $this->resource = $this->resource->getResource();
+        }
+
+        return $this->resource;
     }
 
     // }}}
     // {{{ public function set()
 
-    public function set(ResourcePointer $pointer)
+    public function set(ResourceIdentifier $resource)
     {
-        $this->type = $pointer->getType();
-        $this->id = $pointer->getId();
-        $this->pointer = $pointer;
+        $this->resource = $resource;
     }
 
     // }}}
