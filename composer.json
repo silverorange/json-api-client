@@ -1,0 +1,19 @@
+{
+	"name": "silverorange/json-api-client",
+	"description": "",
+	"type": "library",
+	"keywords": [ "json-api" ],
+	"homepage": "https://github.com/silverorange/json-api",
+	"authors": [
+		{
+			"name": "Charles Waddell",
+			"email": "charles@silverorange.com"
+		}
+	],
+	"require": {
+		"guzzlehttp/guzzle": "^6.2.2"
+	},
+	"autoload": {
+		"psr-4": { "silverorange\\" : "src/" }
+	}
+}
