@@ -47,11 +47,11 @@ class Resource extends ResourceIdentifier
                 } else {
                     $collection = null;
                     foreach ($resource['data'] as $data) {
-                        if (!$collection instanceof ResourceIdentifierCollection) {
-                            $collection = new ResourceIdentifierCollection($data['type']);
+                        if (!$collection instanceof ResourceCollection) {
+                            $collection = new ResourceCollection($data['type']);
                         }
 
-                        $collection->append(
+                        $collection->add(
                             new ResourceIdentifier(
                                 $this->store,
                                 $data['type'],

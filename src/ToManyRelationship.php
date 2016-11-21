@@ -11,9 +11,8 @@ class ToManyRelationship
     // }}}
     // {{{ public function __construct()
 
-    public function __construct(
-        ResourceIdentifierCollection $resource_collection
-    ) {
+    public function __construct(ResourceCollection $resource_collection)
+    {
     
         $this->resource_collection = $resource_collection;
     }
@@ -29,7 +28,7 @@ class ToManyRelationship
     // }}}
     // {{{ public function set()
 
-    public function set(ResourceIdentifierCollection $resource_collection)
+    public function set(ResourceCollection $resource_collection)
     {
         $this->resource_collection = $resource_collection;
     }

@@ -68,7 +68,7 @@ class ResourceStore
 
         $body = json_decode($result->getBody(), true);
 
-        $collection = new ResourceIdentifierCollection($type);
+        $collection = new ResourceCollection($type);
         foreach ($body['data'] as $data) {
             $resource = new Resource($this);
             $resource->decode(json_encode(['data' => $data]));
@@ -79,7 +79,7 @@ class ResourceStore
                 $resource
             );
 
-            $collection->append($resource);
+            $collection->add($resource);
         }
 
         return $collection;
