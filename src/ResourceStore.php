@@ -10,25 +10,12 @@ class ResourceStore
     // {{{ protected properties
 
     protected $json_api_base;
+    protected $token;
+    protected $client;
 
     protected $class_by_type = array();
 
     protected $resources = array();
-
-    // }}}
-    // {{{ public function __construct()
-
-    public function __construct()
-    {
-        $this->client = new HttpClient(
-            [
-                'headers' => [
-                    'Authorization' => 'Bearer 9f8a2c79-18ed-4053-8f3b-ae5264109955',
-                    'Accept' => 'application/vnd.api+json',
-                ]
-            ]
-        );
-    }
 
     // }}}
     // {{{ public function setJsonApiBase()
@@ -36,6 +23,31 @@ class ResourceStore
     public function setJsonApiBase($json_api_base)
     {
         $this->json_api_base = $json_api_base;
+    }
+
+    // }}}
+    // {{{ public function setToken()
+
+    public function setToken($token)
+    {
+        $this->token = $token;
+        $this->client = new HttpClient(
+            [
+                'headers' => [
+                    'Authorization' => 'Bearer ' . $token,
+                    'Accept' => 'application/vnd.api+json',
+                    'Content-Type' => 'application/vnd.api+json',
+                ]
+            ]
+        );
+    }
+
+    // }}}
+    // {{{ public function getClient()
+
+    public function getClient()
+    {
+        return $this->client;
     }
 
     // }}}
@@ -57,29 +69,25 @@ class ResourceStore
     // }}}
     // {{{ public function findAll()
 
-    public function findAll($type)
+    public function findAll($type, $query_params = [])
     {
-        $request = new Request(
+        $result = $this->getClient()->request(
             'GET',
-            $this->getResourceAddress($type)
+            $this->getResourceAddress($type),
+            ['query' => $query_params]
         );
-
-        $result = $this->client->send($request);
 
         $body = json_decode($result->getBody(), true);
 
-        $collection = new ResourceCollection($type);
-        foreach ($body['data'] as $data) {
-            $resource = new Resource($this);
-            $resource->decode(json_encode(['data' => $data]));
+        $collection = new ResourceCollection($this, $type);
+        $collection->decode($body['data']);
 
+        foreach ($collection as $resource) {
             $this->setResource(
                 $resource->getType(),
                 $resource->getId(),
                 $resource
             );
-
-            $collection->add($resource);
         }
 
         return $collection;
@@ -88,18 +96,19 @@ class ResourceStore
     // }}}
     // {{{ public function find()
 
-    public function find($type, $id)
+    public function find($type, $id, $query_params = [])
     {
         if (!$this->hasResource($type, $id)) {
-            $request = new Request(
+            $result = $this->getClient()->request(
                 'GET',
-                $this->getResourceAddress($type, $id)
+                $this->getResourceAddress($type, $id),
+                ['query' => $query_params]
             );
 
-            $result = $this->client->send($request);
+            $body = json_decode($result->getBody(), true);
 
             $resource = new Resource($this);
-            $resource->decode($result->getBody());
+            $resource->decode($body['data']);
 
             $this->setResource($type, $id, $resource);
         }
@@ -112,20 +121,48 @@ class ResourceStore
 
     public function save(Resource $resource)
     {
-        $request = new Request(
+        $result = $this->getClient()->request(
             'PATCH',
             $this->getResourceAddress(
                 $resource->getType(),
                 $resource->getId()
             ),
-            ['Content-Type' => 'application/vnd.api+json'],
-            $resource->encode()
+            ['body' => $resource->encode()]
         );
 
-        $result = $this->client->send($request);
+        $body = json_decode($result->getBody(), true);
 
         $resource = new Resource($this);
-        $resource->decode($result->getBody());
+        $resource->decode($body['data']);
+
+        // Replace the old resource with a new one
+        $this->setResource(
+            $resource->getType(),
+            $resource->getId(),
+            $resource
+        );
+
+        return $this->getResource(
+            $resource->getType(),
+            $resource->getId()
+        );
+    }
+
+    // }}}
+    // {{{ public function create()
+
+    public function create(Resource $resource)
+    {
+        $result = $this->getClient()->request(
+            'POST',
+            $this->getResourceAddress($resource->getType()),
+            ['body' => $resource->encode()]
+        );
+
+        $body = json_decode($result->getBody(), true);
+
+        $resource = new Resource($this);
+        $resource->decode($body['data']);
 
         // Replace the old resource with a new one
         $this->setResource(
@@ -183,6 +220,14 @@ class ResourceStore
                 $type
             );
         }
+    }
+
+    // }}}
+    // {{{ public function __sleep()
+
+    public function __sleep()
+    {
+        return array('json_api_base', 'token');
     }
 
     // }}}

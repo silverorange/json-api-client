@@ -45,4 +45,25 @@ class ResourceIdentifier
     }
 
     // }}}
+    // {{{ public function encode()
+
+    public function encode()
+    {
+        return $this->encodeIndentifier();
+    }
+
+    // }}}
+    // {{{ public function encodeIdentifier()
+
+    public function encodeIdentifier()
+    {
+        return [
+            'data' => [
+                'id' => $this->getId(),
+                'type' => $this->getType()
+            ]
+        ];
+    }
+
+    // }}}
 }

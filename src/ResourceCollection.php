@@ -12,8 +12,9 @@ class ResourceCollection implements \Countable, \IteratorAggregate
     // }}}
     // {{{ public function __construct()
 
-    public function __construct($type)
+    public function __construct(ResourceStore $store, $type)
     {
+        $this->store = $store;
         $this->type = $type;
     }
 
@@ -77,6 +78,51 @@ class ResourceCollection implements \Countable, \IteratorAggregate
     public function getIterator()
     {
         return new ResourceCollectionIterator($this);
+    }
+
+    // }}}
+    // {{{ public function encode()
+
+    public function encode()
+    {
+        $data = [];
+
+        // Don't use the object itself to get the interator.
+        // Prevents lazy loading.
+        foreach ($this->collection as $resource) {
+            $data[] = $resource->encode();
+        }
+
+        return $data;
+    }
+
+    // }}}
+    // {{{ public function encodeIdentifier()
+
+    public function encodeIdentifier()
+    {
+        $data = [];
+
+        // Don't use the object itself to get the interator.
+        // Prevents lazy loading.
+        foreach ($this->collection as $resource) {
+            $data[] = $resource->encodeIdentifier();
+        }
+
+        return $data;
+    }
+
+    // }}}
+    // {{{ public function decode()
+
+    public function decode($collection)
+    {
+        foreach ($collection as $data) {
+            $resource = new Resource($this->store);
+            $resource->decode($data);
+
+            $this->add($resource);
+        }
     }
 
     // }}}

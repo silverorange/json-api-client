@@ -4,6 +4,13 @@ namespace silverorange;
 
 class ResourceCollectionIterator implements \Iterator
 {
+    // {{{ protected properties
+
+    protected $collection;
+    protected $key;
+    protected $current = 0;
+
+    // }}}
     // {{{ public function __construct()
 
     public function __construct(ResourceCollection $collection)

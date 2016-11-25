@@ -53,4 +53,12 @@ class ToOneRelationship
     }
 
     // }}}
+    // {{{ public function encodeIdentifier()
+
+    public function encodeIdentifier()
+    {
+        return $this->resource->encodeIdentifier();
+    }
+
+    // }}}
 }

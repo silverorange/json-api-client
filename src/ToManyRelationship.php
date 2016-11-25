@@ -13,7 +13,6 @@ class ToManyRelationship
 
     public function __construct(ResourceCollection $resource_collection)
     {
-    
         $this->resource_collection = $resource_collection;
     }
 
@@ -31,6 +30,14 @@ class ToManyRelationship
     public function set(ResourceCollection $resource_collection)
     {
         $this->resource_collection = $resource_collection;
+    }
+
+    // }}}
+    // {{{ public function encodeIdentifier()
+
+    public function encodeIdentifier()
+    {
+        return $this->resource_collection->encodeIdentifier();
     }
 
     // }}}

@@ -21,86 +21,6 @@ class Resource extends ResourceIdentifier
     }
 
     // }}}
-    // {{{ public function decode()
-
-    public function decode($json)
-    {
-        $data = json_decode($json, true);
-
-        $this->id = $data['data']['id'];
-        $this->type = $data['data']['type'];
-        $this->attributes = $data['data']['attributes'];
-
-        if (array_key_exists('relationships', $data['data'])) {
-            foreach ($data['data']['relationships'] as $key => $resource) {
-                // TODO: Deal with collections and nulls
-                if ($resource['data'] === null) {
-                    $this->relationships[$key] = null;
-                } elseif (array_key_exists('id', $resource['data'])) {
-                    $this->relationships[$key] = new ToOneRelationship(
-                        new ResourceIdentifier(
-                            $this->store,
-                            $resource['data']['type'],
-                            $resource['data']['id']
-                        )
-                    );
-                } else {
-                    $collection = null;
-                    foreach ($resource['data'] as $data) {
-                        if (!$collection instanceof ResourceCollection) {
-                            $collection = new ResourceCollection($data['type']);
-                        }
-
-                        $collection->add(
-                            new ResourceIdentifier(
-                                $this->store,
-                                $data['type'],
-                                $data['id']
-                            )
-                        );
-                    }
-
-                    $this->relationships[$key] = new ToManyRelationship(
-                        $collection
-                    );
-                }
-            }
-        }
-    }
-
-    // }}}
-    // {{{ public function encode()
-
-    public function encode()
-    {
-        $relationships = [];
-
-        // TODO: Deal with to many relationships
-        foreach ($this->relationships as $name => $relationship) {
-            if ($relationship instanceof ToOneRelationship) {
-                $relationships[$name] = [
-                    'data' => [
-                        'id' => $relationship->getId(),
-                        'type' => $relationship->getType()
-                    ]
-                ];
-            }
-        }
-
-        return json_encode(
-            [
-                'data' => [
-                    'id' => $this->getId(),
-                    'type' => $this->getType(),
-                    'attributes' => $this->attributes,
-                    'relationships' => $relationships,
-                ]
-            ],
-            JSON_PRETTY_PRINT
-        );
-    }
-
-    // }}}
     // {{{ public function getType()
 
     public function getType()
@@ -155,6 +75,97 @@ class Resource extends ResourceIdentifier
                     $this->type
                 )
             );
+        }
+    }
+
+    // }}}
+    // {{{ public function encode()
+
+    public function encode()
+    {
+        $relationships = [];
+
+        foreach ($this->relationships as $name => $relationship) {
+            if ($relationship instanceof ToOneRelationship ||
+                $relationship instanceof ToManyRelationship) {
+                $relationships[$name] = $relationship->encodeIdentifier();
+            } else {
+                $relationships[$name] = [
+                    'data' => null
+                ];
+            }
+        }
+
+        $data = [
+            'data' => []
+        ];
+
+        if ($this->getId() != '') {
+            $data['data']['id'] = $this->getId();
+        }
+
+        $data['data']['type'] = $this->getType();
+        $data['data']['attributes'] = $this->attributes;
+        $data['data']['relationships'] = $relationships;
+
+        return $data;
+    }
+
+    // }}}
+    // {{{ public function encodeIdentifier()
+
+    public function encodeIdentifier()
+    {
+        return parent::encodeIdentifier();
+    }
+
+    // }}}
+    // {{{ public function decode()
+
+    public function decode($data)
+    {
+        $this->id = $data['id'];
+        $this->type = $data['type'];
+        $this->attributes = $data['attributes'];
+
+        if (array_key_exists('relationships', $data)) {
+            foreach ($data['relationships'] as $key => $resources) {
+                if ($resources['data'] === null) {
+                    $this->relationships[$key] = null;
+                } elseif (array_key_exists('id', $resources['data'])) {
+                    $resource = $resources['data'];
+
+                    $this->relationships[$key] = new ToOneRelationship(
+                        new ResourceIdentifier(
+                            $this->store,
+                            $resource['type'],
+                            $resource['id']
+                        )
+                    );
+                } else {
+                    $collection = null;
+                    foreach ($resources['data'] as $resource) {
+                        if (!$collection instanceof ResourceCollection) {
+                            $collection = new ResourceCollection(
+                                $this->store,
+                                $resource['type']
+                            );
+                        }
+
+                        $collection->add(
+                            new ResourceIdentifier(
+                                $this->store,
+                                $resource['type'],
+                                $resource['id']
+                            )
+                        );
+                    }
+
+                    $this->relationships[$key] = new ToManyRelationship(
+                        $collection
+                    );
+                }
+            }
         }
     }
 
