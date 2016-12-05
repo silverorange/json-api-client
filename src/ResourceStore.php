@@ -21,7 +21,7 @@ class ResourceStore
     // }}}
     // {{{ public function __construct()
 
-    public function __construct($json_api_base, $json_api_headers = [])
+    public function __construct($json_api_base, array $json_api_headers = [])
     {
         $this->json_api_base = $json_api_base;
         $this->json_api_headers = $json_api_headers;
@@ -59,25 +59,9 @@ class ResourceStore
     }
 
     // }}}
-    // {{{ public function addClass()
-
-    public function addClass($type, $class)
-    {
-        $this->class_by_type[$type] = $class;
-    }
-
-    // }}}
-    // {{{ public function getClass()
-
-    public function getClass($type)
-    {
-        return $this->class_by_type[$type];
-    }
-
-    // }}}
     // {{{ public function findAll()
 
-    public function findAll($type, $query_params = [])
+    public function findAll($type, array $query_params = [])
     {
         $result = $this->http_client->request(
             'GET',
@@ -104,7 +88,7 @@ class ResourceStore
     // }}}
     // {{{ public function find()
 
-    public function find($type, $id, $query_params = [])
+    public function find($type, $id, array $query_params = [])
     {
         if (!$this->hasResource($type, $id)) {
             $result = $this->http_client->request(
@@ -218,18 +202,26 @@ class ResourceStore
     }
 
     // }}}
-    // {{{ public function __sleep()
+    // {{{ public function serialize()
 
-    public function __sleep()
+    public function serialize()
     {
-        return array('json_api_base', 'json_api_headers');
+        return serialize([
+            'json_api_base' => $this->json_api_base,
+            'json_api_headers' => $this->json_api_headers
+        ]);
     }
 
     // }}}
-    // {{{ public function __wakeup()
+    // {{{ public function unserialize()
 
-    public function __wakeup()
+    public function unserialize($serialized)
     {
+        $data = unserialize($serialized);
+
+        $this->json_api_base = $data['json_api_base'];
+        $this->json_api_headers = $data['json_api_headers'];
+
         $this->initHttpClient();
     }
 
