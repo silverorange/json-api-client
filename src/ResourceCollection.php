@@ -115,7 +115,7 @@ class ResourceCollection implements \Countable, \IteratorAggregate
     // }}}
     // {{{ public function decode()
 
-    public function decode($collection)
+    public function decode(array $collection)
     {
         foreach ($collection as $data) {
             $resource = new Resource($this->store);

@@ -114,7 +114,7 @@ class Resource extends ResourceIdentifier
     // }}}
     // {{{ public function decode()
 
-    public function decode($data)
+    public function decode(array $data)
     {
         $this->id = $data['id'];
         $this->type = $data['type'];
