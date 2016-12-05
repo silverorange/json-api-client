@@ -32,7 +32,7 @@ class ResourceCollection implements \Countable, \IteratorAggregate
     public function add(ResourceIdentifier $resource)
     {
         if ($resource->getType() !== $this->type) {
-            throw new \Exception(
+            throw new \InvalidArgumentException(
                 sprintf(
                     'Unable to add resource of type “%s” to '.
                     'collection of type “%s”',
@@ -51,8 +51,8 @@ class ResourceCollection implements \Countable, \IteratorAggregate
     public function get($id)
     {
         if (!array_key_exists($id, $this->collection)) {
-            throw new \Exception(
-                sprintf('Unable to get ResourceIdentifier of ID %s.', $id)
+            throw new \OutOfBoundsException(
+                sprintf('Unable to get “%s” with id “%s”.', $this->type, $id)
             );
         }
 
