@@ -6,11 +6,11 @@ class Resource extends ResourceIdentifier
 {
     // {{{ protected properties
 
-    protected $id;
-    protected $type;
-    protected $store;
-    protected $attributes = array();
-    protected $relationships = array();
+    protected $id = null;
+    protected $type = null;
+    protected $store = null;
+    protected $attributes = [];
+    protected $relationships = [];
 
     // }}}
     // {{{ public function __construct()
