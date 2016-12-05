@@ -112,14 +112,6 @@ class Resource extends ResourceIdentifier
     }
 
     // }}}
-    // {{{ public function encodeIdentifier()
-
-    public function encodeIdentifier()
-    {
-        return parent::encodeIdentifier();
-    }
-
-    // }}}
     // {{{ public function decode()
 
     public function decode($data)
