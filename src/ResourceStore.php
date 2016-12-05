@@ -9,10 +9,10 @@ class ResourceStore
 {
     // {{{ protected properties
 
-    protected $json_api_base;
-    protected $json_api_headers;
+    protected $json_api_base = null;
+    protected $json_api_headers = null;
 
-    protected $http_client;
+    protected $http_client = null;
 
     protected $class_by_type = array();
 
