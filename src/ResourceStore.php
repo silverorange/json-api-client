@@ -10,44 +10,52 @@ class ResourceStore
     // {{{ protected properties
 
     protected $json_api_base;
-    protected $token;
-    protected $client;
+    protected $json_api_headers;
+
+    protected $http_client;
 
     protected $class_by_type = array();
 
     protected $resources = array();
 
     // }}}
-    // {{{ public function setJsonApiBase()
+    // {{{ public function __construct()
 
-    public function setJsonApiBase($json_api_base)
+    public function __construct($json_api_base, $json_api_headers = [])
     {
         $this->json_api_base = $json_api_base;
+        $this->json_api_headers = $json_api_headers;
+
+        $this->initHttpClient();
     }
 
     // }}}
-    // {{{ public function setToken()
+    // {{{ protected function initHttpClient()
 
-    public function setToken($token)
+    protected function initHttpClient()
     {
-        $this->token = $token;
-        $this->client = new HttpClient(
+        $default_headers = $this->getDefaultHttpHeaders();
+
+        $this->http_client = new HttpClient(
             [
-                'headers' => [
-                    'Authorization' => 'Bearer ' . $token,
-                    'Accept' => 'application/vnd.api+json',
-                    'Content-Type' => 'application/vnd.api+json',
-                ]
+                'base_uri' => $this->json_api_base,
+                'headers' => array_merge(
+                    $default_headers,
+                    $this->json_api_headers
+                ),
             ]
         );
     }
 
     // }}}
-    // {{{ public function getClient()
+    // {{{ protected function getDefaultHttpHeaders()
 
-    public function getClient()
+    protected function getDefaultHttpHeaders()
     {
-        return $this->client;
+        return [
+            'Accept' => 'application/vnd.api+json',
+            'Content-Type' => 'application/vnd.api+json',
+        ];
     }
 
     // }}}
@@ -71,7 +79,7 @@ class ResourceStore
 
     public function findAll($type, $query_params = [])
     {
-        $result = $this->getClient()->request(
+        $result = $this->http_client->request(
             'GET',
             $this->getResourceAddress($type),
             ['query' => $query_params]
@@ -99,7 +107,7 @@ class ResourceStore
     public function find($type, $id, $query_params = [])
     {
         if (!$this->hasResource($type, $id)) {
-            $result = $this->getClient()->request(
+            $result = $this->http_client->request(
                 'GET',
                 $this->getResourceAddress($type, $id),
                 ['query' => $query_params]
@@ -121,7 +129,7 @@ class ResourceStore
 
     public function save(Resource $resource)
     {
-        $result = $this->getClient()->request(
+        $result = $this->http_client->request(
             'PATCH',
             $this->getResourceAddress(
                 $resource->getType(),
@@ -153,7 +161,7 @@ class ResourceStore
 
     public function create(Resource $resource)
     {
-        $result = $this->getClient()->request(
+        $result = $this->http_client->request(
             'POST',
             $this->getResourceAddress($resource->getType()),
             ['body' => $resource->encode()]
@@ -206,20 +214,7 @@ class ResourceStore
 
     protected function getResourceAddress($type, $id = null)
     {
-        if ($id != '') {
-            return sprintf(
-                '%s/%s/%s',
-                $this->json_api_base,
-                $type,
-                $id
-            );
-        } else {
-            return sprintf(
-                '%s/%s',
-                $this->json_api_base,
-                $type
-            );
-        }
+        return ($id != '') ? $type . '/' . $id : $type;
     }
 
     // }}}
@@ -227,7 +222,15 @@ class ResourceStore
 
     public function __sleep()
     {
-        return array('json_api_base', 'token');
+        return array('json_api_base', 'json_api_headers');
+    }
+
+    // }}}
+    // {{{ public function __wakeup()
+
+    public function __wakeup()
+    {
+        $this->initHttpClient();
     }
 
     // }}}
