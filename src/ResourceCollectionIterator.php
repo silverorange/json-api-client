@@ -6,8 +6,8 @@ class ResourceCollectionIterator implements \Iterator
 {
     // {{{ protected properties
 
-    protected $collection;
-    protected $key;
+    protected $collection = null;
+    protected $keys = [];
     protected $current = 0;
 
     // }}}
