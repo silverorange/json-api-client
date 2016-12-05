@@ -134,7 +134,7 @@ class Resource extends ResourceIdentifier
                             $resource['id']
                         )
                     );
-                } else {
+                } elseif (is_array($resources['data'])) {
                     $collection = null;
                     foreach ($resources['data'] as $resource) {
                         if (!$collection instanceof ResourceCollection) {
