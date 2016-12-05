@@ -90,22 +90,64 @@ class ResourceStore
 
     public function find($type, $id, array $query_params = [])
     {
-        if (!$this->hasResource($type, $id)) {
-            $result = $this->http_client->request(
-                'GET',
-                $this->getResourceAddress($type, $id),
-                ['query' => $query_params]
-            );
+        $resource = $this->peek($type, $id);
 
-            $body = json_decode($result->getBody(), true);
-
-            $resource = new Resource($this);
-            $resource->decode($body['data']);
-
-            $this->setResource($type, $id, $resource);
+        if (!$resource instanceof Resource) {
+            $resource = $this->query($type, $id, $query_params);
         }
 
-        return $this->getResource($type, $id);
+        return $resource;
+    }
+
+    // }}}
+    // {{{ public function query()
+
+    public function query($type, $id, array $query_params = [])
+    {
+        $result = $this->http_client->request(
+            'GET',
+            $this->getResourceAddress($type, $id),
+            ['query' => $query_params]
+        );
+
+        $body = json_decode($result->getBody(), true);
+
+        $resource = new Resource($this);
+        $resource->decode($body['data']);
+
+        $this->setResource($type, $id, $resource);
+
+        return $resource;
+    }
+
+    // }}}
+    // {{{ public function peekAll()
+
+    public function peekAll($type)
+    {
+        $collection = new ResourceCollection($this, $type);
+
+        if ($this->hasResources($type)) {
+            foreach ($this->getResources($type) as $resource) {
+                $collection->add($resource);
+            }
+        }
+
+        return $collection;
+    }
+
+    // }}}
+    // {{{ public function peek()
+
+    public function peek($type, $id)
+    {
+        $resource = null;
+
+        if ($this->hasResource($type, $id)) {
+            $resource = $this->getResource($type, $id);
+        }
+
+        return $resource;
     }
 
     // }}}
@@ -178,11 +220,27 @@ class ResourceStore
     }
 
     // }}}
+    // {{{ protected function hasResources()
+
+    protected function hasResources($type)
+    {
+        return isset($this->resources[$type]);
+    }
+
+    // }}}
     // {{{ protected function getResource()
 
     protected function getResource($type, $id)
     {
         return $this->resources[$type][$id];
+    }
+
+    // }}}
+    // {{{ protected function getResources()
+
+    protected function getResource($type)
+    {
+        return $this->resources[$type];
     }
 
     // }}}

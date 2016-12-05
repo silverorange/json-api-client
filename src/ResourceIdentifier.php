@@ -6,9 +6,9 @@ class ResourceIdentifier
 {
     // {{{ protected properties
 
-    protected $store;
-    protected $type;
-    protected $id;
+    protected $store = null;
+    protected $type = null;
+    protected $id = null;
 
     // }}}
     // {{{ public function __construct()
