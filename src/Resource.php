@@ -161,9 +161,11 @@ class Resource extends ResourceIdentifier
                         );
                     }
 
-                    $this->relationships[$key] = new ToManyRelationship(
-                        $collection
-                    );
+                    if ($collection instanceof ResourceCollection) {
+                        $this->relationships[$key] = new ToManyRelationship(
+                            $collection
+                        );
+                    }
                 }
             }
         }
