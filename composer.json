@@ -17,6 +17,14 @@
 	"require-dev": {
 		"squizlabs/php_codesniffer": "2.*"
 	},
+	"scripts": {
+		"lint": [
+			"phpcs --standard=PSR2 src/"
+		],
+		"beautifier": [
+			"phpcbf --standard=PSR2 src/"
+		]
+	},
 	"autoload": {
 		"psr-4": { "silverorange\\" : "src/" }
 	}
