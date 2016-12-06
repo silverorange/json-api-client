@@ -6,35 +6,8 @@ class Resource extends ResourceIdentifier
 {
     // {{{ protected properties
 
-    protected $id = null;
-    protected $type = null;
-    protected $store = null;
     protected $attributes = [];
     protected $relationships = [];
-
-    // }}}
-    // {{{ public function __construct()
-
-    public function __construct(ResourceStore $store)
-    {
-        $this->store = $store;
-    }
-
-    // }}}
-    // {{{ public function getType()
-
-    public function getType()
-    {
-        return $this->type;
-    }
-
-    // }}}
-    // {{{ public function getId()
-
-    public function getId()
-    {
-        return $this->id;
-    }
 
     // }}}
     // {{{ public function get()
@@ -116,6 +89,8 @@ class Resource extends ResourceIdentifier
 
     public function decode(array $data)
     {
+        $this->checkStore();
+
         $this->id = $data['id'];
         $this->type = $data['type'];
         $this->attributes = $data['attributes'];
@@ -127,30 +102,29 @@ class Resource extends ResourceIdentifier
                 } elseif (array_key_exists('id', $resources['data'])) {
                     $resource = $resources['data'];
 
+                    $identifier = new ResourceIdentifier();
+                    $identifier->setStore($this->store);
+                    $identifier->decode($resource);
+
                     $this->relationships[$key] = new ToOneRelationship(
-                        new ResourceIdentifier(
-                            $this->store,
-                            $resource['type'],
-                            $resource['id']
-                        )
+                        $identifier
                     );
                 } elseif (is_array($resources['data'])) {
                     $collection = null;
                     foreach ($resources['data'] as $resource) {
                         if (!$collection instanceof ResourceCollection) {
                             $collection = new ResourceCollection(
-                                $this->store,
                                 $resource['type']
                             );
+
+                            $collection->setStore($this->store);
                         }
 
-                        $collection->add(
-                            new ResourceIdentifier(
-                                $this->store,
-                                $resource['type'],
-                                $resource['id']
-                            )
-                        );
+                        $identifier = new ResourceIdentifier();
+                        $identifier->setStore($this->store);
+                        $identifier->decode($resource);
+
+                        $collection->add($identifier);
                     }
 
                     if ($collection instanceof ResourceCollection) {
@@ -161,6 +135,34 @@ class Resource extends ResourceIdentifier
                 }
             }
         }
+    }
+
+    // }}}
+
+    // Serializable interface
+    // {{{ public function serialize()
+
+    public function serialize()
+    {
+        return serialize([
+            'type' => $this->type,
+            'id' => $this->id,
+            'attributes' => $this->attributes,
+            'relationships' => $this->relationships,
+        ]);
+    }
+
+    // }}}
+    // {{{ public function unserialize()
+
+    public function unserialize($serialized)
+    {
+        $data = unserialize($serialized);
+
+        $this->type = $data['type'];
+        $this->id = $data['id'];
+        $this->attributes = $data['attributes'];
+        $this->relationships = $data['relationships'];
     }
 
     // }}}

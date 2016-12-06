@@ -2,28 +2,25 @@
 
 namespace silverorange;
 
-class ResourceCollection implements \Countable, \IteratorAggregate
+use Countable;
+use Serializable;
+use IteratorAggregate;
+
+class ResourceCollection implements Countable, Serializable, IteratorAggregate
 {
+    use ResourceStoreAccessTrait;
     // {{{ protected properties
 
-    protected $type;
+    protected $store = null;
+    protected $type = null;
     protected $collection = [];
 
     // }}}
     // {{{ public function __construct()
 
-    public function __construct(ResourceStore $store, $type)
+    public function __construct($type)
     {
-        $this->store = $store;
         $this->type = $type;
-    }
-
-    // }}}
-    // {{{ public function count()
-
-    public function count()
-    {
-        return count($this->collection);
     }
 
     // }}}
@@ -73,14 +70,6 @@ class ResourceCollection implements \Countable, \IteratorAggregate
     }
 
     // }}}
-    // {{{ public function getIterator()
-
-    public function getIterator()
-    {
-        return new ResourceCollectionIterator($this);
-    }
-
-    // }}}
     // {{{ public function encode()
 
     public function encode()
@@ -117,12 +106,59 @@ class ResourceCollection implements \Countable, \IteratorAggregate
 
     public function decode(array $collection)
     {
+        $this->checkStore();
+
         foreach ($collection as $data) {
-            $resource = new Resource($this->store);
+            $resource = new Resource();
+            $resource->setStore($this->store);
             $resource->decode($data);
 
             $this->add($resource);
         }
+    }
+
+    // }}}
+
+    // Countable interface
+    // {{{ public function count()
+
+    public function count()
+    {
+        return count($this->collection);
+    }
+
+    // }}}
+
+    // Serializable interface
+    // {{{ public function serialize()
+
+    public function serialize()
+    {
+        return serialize([
+            'type' => $this->type,
+            'collection' => $this->collection
+        ]);
+    }
+
+    // }}}
+    // {{{ public function unserialize()
+
+    public function unserialize($serialized)
+    {
+        $data = unserialize($serialized);
+
+        $this->type = $data['type'];
+        $this->collection = $data['collection'];
+    }
+
+    // }}}
+
+    // IteratorAggregate interface
+    // {{{ public function getIterator()
+
+    public function getIterator()
+    {
+        return new ResourceCollectionIterator($this);
     }
 
     // }}}

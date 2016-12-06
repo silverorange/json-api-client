@@ -2,23 +2,15 @@
 
 namespace silverorange;
 
-class ResourceIdentifier
+use Serializable;
+
+class ResourceIdentifier implements Serializable
 {
+    use ResourceStoreAccessTrait;
     // {{{ protected properties
 
-    protected $store = null;
     protected $type = null;
     protected $id = null;
-
-    // }}}
-    // {{{ public function __construct()
-
-    public function __construct(ResourceStore $store, $type, $id)
-    {
-        $this->store = $store;
-        $this->type = $type;
-        $this->id = $id;
-    }
 
     // }}}
     // {{{ public function getType()
@@ -41,6 +33,8 @@ class ResourceIdentifier
 
     public function getResource()
     {
+        $this->checkStore();
+
         return $this->store->find($this->getType(), $this->getId());
     }
 
@@ -63,6 +57,39 @@ class ResourceIdentifier
                 'type' => $this->getType()
             ]
         ];
+    }
+
+    // }}}
+    // {{{ public function decode()
+
+    public function decode(array $data)
+    {
+        $this->type = $data['type'];
+        $this->id = $data['id'];
+    }
+
+    // }}}
+
+    // Serializable interface
+    // {{{ public function serialize()
+
+    public function serialize()
+    {
+        return serialize([
+            'type' => $this->type,
+            'id' => $this->id
+        ]);
+    }
+
+    // }}}
+    // {{{ public function unserialize()
+
+    public function unserialize($serialized)
+    {
+        $data = unserialize($serialized);
+
+        $this->type = $data['type'];
+        $this->id = $data['id'];
     }
 
     // }}}

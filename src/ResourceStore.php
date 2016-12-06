@@ -71,7 +71,8 @@ class ResourceStore
 
         $body = json_decode($result->getBody(), true);
 
-        $collection = new ResourceCollection($this, $type);
+        $collection = new ResourceCollection($type);
+        $collection->setStore($this);
         $collection->decode($body['data']);
 
         foreach ($collection as $resource) {
@@ -112,7 +113,8 @@ class ResourceStore
 
         $body = json_decode($result->getBody(), true);
 
-        $resource = new Resource($this);
+        $resource = new Resource();
+        $resource->setStore($this);
         $resource->decode($body['data']);
 
         $this->setResource($type, $id, $resource);
@@ -125,7 +127,8 @@ class ResourceStore
 
     public function peekAll($type)
     {
-        $collection = new ResourceCollection($this, $type);
+        $collection = new ResourceCollection($type);
+        $collection->setStore($this);
 
         if ($this->hasResources($type)) {
             foreach ($this->getResources($type) as $resource) {
@@ -166,7 +169,8 @@ class ResourceStore
 
         $body = json_decode($result->getBody(), true);
 
-        $resource = new Resource($this);
+        $resource = new Resource();
+        $resource->setStore($this);
         $resource->decode($body['data']);
 
         // Replace the old resource with a new one
@@ -195,7 +199,8 @@ class ResourceStore
 
         $body = json_decode($result->getBody(), true);
 
-        $resource = new Resource($this);
+        $resource = new Resource();
+        $resource->setStore($this);
         $resource->decode($body['data']);
 
         // Replace the old resource with a new one
@@ -238,7 +243,7 @@ class ResourceStore
     // }}}
     // {{{ protected function getResources()
 
-    protected function getResource($type)
+    protected function getResources($type)
     {
         return $this->resources[$type];
     }
@@ -257,30 +262,6 @@ class ResourceStore
     protected function getResourceAddress($type, $id = null)
     {
         return ($id != '') ? $type . '/' . $id : $type;
-    }
-
-    // }}}
-    // {{{ public function serialize()
-
-    public function serialize()
-    {
-        return serialize([
-            'json_api_base' => $this->json_api_base,
-            'json_api_headers' => $this->json_api_headers
-        ]);
-    }
-
-    // }}}
-    // {{{ public function unserialize()
-
-    public function unserialize($serialized)
-    {
-        $data = unserialize($serialized);
-
-        $this->json_api_base = $data['json_api_base'];
-        $this->json_api_headers = $data['json_api_headers'];
-
-        $this->initHttpClient();
     }
 
     // }}}
