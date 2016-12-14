@@ -27,6 +27,6 @@
 		]
 	},
 	"autoload": {
-		"psr-4": { "silverorange\\" : "src/" }
+		"psr-4": { "silverorange\\JsonApiClient\\" : "src/" }
 	}
 }
