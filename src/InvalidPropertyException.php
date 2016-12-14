@@ -2,6 +2,6 @@
 
 namespace silverorange\JsonApiClient;
 
-class NoResourceStoreException extends \Exception
+class InvalidPropertyException extends \Exception
 {
 }

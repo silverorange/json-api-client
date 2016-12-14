@@ -1,6 +1,6 @@
 <?php
 
-namespace silverorange;
+namespace silverorange\JsonApiClient;
 
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Client as HttpClient;
@@ -113,6 +113,15 @@ class ResourceStore
 
         $body = json_decode($result->getBody(), true);
 
+        if (!isset($body['data'])) {
+            throw InvalidJSONException(
+                sprintf(
+                    'Invalid JSON received for “%s”.',
+                    $this->getResourceAddress($type, $id)
+                )
+            );
+        }
+
         $resource = new Resource();
         $resource->setStore($this);
         $resource->decode($body['data']);
@@ -164,10 +173,19 @@ class ResourceStore
                 $resource->getType(),
                 $resource->getId()
             ),
-            ['body' => $resource->encode()]
+            ['json' => $resource->encode()]
         );
 
         $body = json_decode($result->getBody(), true);
+
+        if (!isset($body['data'])) {
+            throw InvalidJSONException(
+                sprintf(
+                    'Invalid JSON received for “%s”.',
+                    $this->getResourceAddress($type, $id)
+                )
+            );
+        }
 
         $resource = new Resource();
         $resource->setStore($this);
@@ -194,7 +212,7 @@ class ResourceStore
         $result = $this->http_client->request(
             'POST',
             $this->getResourceAddress($resource->getType()),
-            ['body' => $resource->encode()]
+            ['json' => $resource->encode()]
         );
 
         $body = json_decode($result->getBody(), true);

@@ -1,10 +1,8 @@
 <?php
 
-namespace silverorange;
+namespace silverorange\JsonApiClient;
 
-use Serializable;
-
-class ResourceIdentifier implements Serializable
+class ResourceIdentifier implements \Serializable
 {
     use ResourceStoreAccessTrait;
     // {{{ protected properties
@@ -54,7 +52,7 @@ class ResourceIdentifier implements Serializable
         return [
             'data' => [
                 'id' => $this->getId(),
-                'type' => $this->getType()
+                'type' => $this->getType(),
             ]
         ];
     }

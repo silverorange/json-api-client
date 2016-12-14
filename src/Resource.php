@@ -1,6 +1,6 @@
 <?php
 
-namespace silverorange;
+namespace silverorange\JsonApiClient;
 
 class Resource extends ResourceIdentifier
 {
@@ -22,7 +22,7 @@ class Resource extends ResourceIdentifier
             return $this->attributes[$key];
         }
 
-        throw new \Exception(
+        throw new InvalidPropertyException(
             sprintf(
                 'Unable to get property “%s” on resource type “%s”',
                 $key,
@@ -41,7 +41,7 @@ class Resource extends ResourceIdentifier
         } elseif (array_key_exists($key, $this->attributes)) {
             $this->attributes[$key] = $value;
         } else {
-            throw new \Exception(
+            throw new InvalidPropertyException(
                 sprintf(
                     'Unable to set property “%s” on resource type “%s”',
                     $key,

@@ -1,6 +1,6 @@
 <?php
 
-namespace silverorange;
+namespace silverorange\JsonApiClient;
 
 trait ResourceStoreAccessTrait
 {

@@ -1,12 +1,8 @@
 <?php
 
-namespace silverorange;
+namespace silverorange\JsonApiClient;
 
-use Countable;
-use Serializable;
-use IteratorAggregate;
-
-class ResourceCollection implements Countable, Serializable, IteratorAggregate
+class ResourceCollection implements \Countable, \Serializable, \IteratorAggregate
 {
     use ResourceStoreAccessTrait;
     // {{{ protected properties
@@ -92,7 +88,7 @@ class ResourceCollection implements Countable, Serializable, IteratorAggregate
     {
         $data = [];
 
-        // Don't use the object itself to get the interator.
+        // Don't use the object itself to get the iterator.
         // Prevents lazy loading.
         foreach ($this->collection as $resource) {
             $data[] = $resource->encodeIdentifier();
