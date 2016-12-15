@@ -71,6 +71,8 @@ class ResourceStore
 
         $body = json_decode($result->getBody(), true);
 
+        $this->checkJsonBody($body);
+
         $collection = new ResourceCollection($type);
         $collection->setStore($this);
         $collection->decode($body['data']);
@@ -113,14 +115,7 @@ class ResourceStore
 
         $body = json_decode($result->getBody(), true);
 
-        if (!is_array($body) || !isset($body['data'])) {
-            throw InvalidJSONException(
-                sprintf(
-                    'Invalid JSON received for “%s”.',
-                    $this->getResourceAddress($type, $id)
-                )
-            );
-        }
+        $this->checkJsonBody($body);
 
         $resource = new Resource();
         $resource->setStore($this);
@@ -178,14 +173,7 @@ class ResourceStore
 
         $body = json_decode($result->getBody(), true);
 
-        if (!is_array($body) || !isset($body['data'])) {
-            throw InvalidJSONException(
-                sprintf(
-                    'Invalid JSON received for “%s”.',
-                    $this->getResourceAddress($type, $id)
-                )
-            );
-        }
+        $this->checkJsonBody($body);
 
         $resource = new Resource();
         $resource->setStore($this);
@@ -216,6 +204,8 @@ class ResourceStore
         );
 
         $body = json_decode($result->getBody(), true);
+
+        $this->checkJsonBody($body);
 
         $resource = new Resource();
         $resource->setStore($this);
@@ -280,6 +270,16 @@ class ResourceStore
     protected function getResourceAddress($type, $id = null)
     {
         return ($id != '') ? $type . '/' . $id : $type;
+    }
+
+    // }}}
+    // {{{ protected function checkJsonBody()
+
+    protected function checkJsonBody($body)
+    {
+        if (!is_array($body) || !isset($body['data'])) {
+            throw InvalidJSONException('Invalid JSON received.');
+        }
     }
 
     // }}}
