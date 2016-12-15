@@ -2,6 +2,6 @@
 
 namespace silverorange\JsonApiClient;
 
-class InvalidJSONException extends \Exception
+class InvalidJsonException extends \Exception
 {
 }

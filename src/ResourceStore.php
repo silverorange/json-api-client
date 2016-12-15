@@ -278,7 +278,7 @@ class ResourceStore
     protected function checkJsonBody($body)
     {
         if (!is_array($body) || !isset($body['data'])) {
-            throw InvalidJSONException('Invalid JSON received.');
+            throw InvalidJsonException('Invalid JSON received.');
         }
     }
 
