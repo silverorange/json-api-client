@@ -113,7 +113,7 @@ class ResourceStore
 
         $body = json_decode($result->getBody(), true);
 
-        if (!isset($body['data'])) {
+        if (!is_array($body) || !isset($body['data'])) {
             throw InvalidJSONException(
                 sprintf(
                     'Invalid JSON received for “%s”.',
@@ -178,7 +178,7 @@ class ResourceStore
 
         $body = json_decode($result->getBody(), true);
 
-        if (!isset($body['data'])) {
+        if (!is_array($body) || !isset($body['data'])) {
             throw InvalidJSONException(
                 sprintf(
                     'Invalid JSON received for “%s”.',
