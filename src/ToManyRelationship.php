@@ -2,7 +2,7 @@
 
 namespace silverorange\JsonApiClient;
 
-class ToManyRelationship
+class ToManyRelationship implements ResourceStoreAccess
 {
     // {{{ protected properties
 
@@ -15,6 +15,16 @@ class ToManyRelationship
     {
         $this->resource_collection = $resource_collection;
     }
+
+    // }}}
+    // {{{ public function setStore()
+
+    public function setStore(ResourceStore $store)
+    {
+        $this->resource_collection->setStore($store);
+    }
+
+    // }}}
 
     // }}}
     // {{{ public function get()

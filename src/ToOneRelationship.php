@@ -2,7 +2,7 @@
 
 namespace silverorange\JsonApiClient;
 
-class ToOneRelationship
+class ToOneRelationship implements ResourceStoreAccess
 {
     // {{{ protected properties
 
@@ -14,6 +14,14 @@ class ToOneRelationship
     public function __construct(ResourceIdentifier $resource)
     {
         $this->resource = $resource;
+    }
+
+    // }}}
+    // {{{ public function setStore()
+
+    public function setStore(ResourceStore $store)
+    {
+        $this->resource->setStore($store);
     }
 
     // }}}

@@ -2,12 +2,35 @@
 
 namespace silverorange\JsonApiClient;
 
-class Resource extends ResourceIdentifier
+abstract class Resource extends ResourceIdentifier implements ResourceStoreAccess
 {
     // {{{ protected properties
 
     protected $attributes = [];
     protected $relationships = [];
+
+    // }}}
+    // {{{ public function __construct()
+
+    public function __construct()
+    {
+        $this->initAttributes();
+        $this->initRelationships();
+    }
+
+    // }}}
+    // {{{ public function setStore()
+
+    public function setStore(ResourceStore $store)
+    {
+        parent::setStore($store);
+
+        foreach ($this->relationships as $key => $relationship) {
+            if ($relationship instanceof ResourceStoreAccess) {
+                $relationship->setStore($store);
+            }
+        }
+    }
 
     // }}}
     // {{{ public function get()
@@ -26,7 +49,7 @@ class Resource extends ResourceIdentifier
             sprintf(
                 'Unable to get property “%s” on resource type “%s”',
                 $key,
-                $this->type
+                $this->getType()
             )
         );
     }
@@ -45,7 +68,7 @@ class Resource extends ResourceIdentifier
                 sprintf(
                     'Unable to set property “%s” on resource type “%s”',
                     $key,
-                    $this->type
+                    $this->getType()
                 )
             );
         }
@@ -91,9 +114,18 @@ class Resource extends ResourceIdentifier
     {
         $this->checkStore();
 
+        if ($data['type'] !== $this->getType()) {
+            throw new InvalidResourceTypeException(
+                sprintf(
+                    'Resource type %s provided does not match expected type %s',
+                    $data['type'],
+                    $this->getType()
+                )
+            );
+        }
+
         $this->id = $data['id'];
-        $this->type = $data['type'];
-        $this->attributes = $data['attributes'];
+        $this->attributes = array_merge($this->attributes, $data['attributes']);
 
         if (array_key_exists('relationships', $data)) {
             foreach ($data['relationships'] as $key => $resources) {
@@ -138,6 +170,41 @@ class Resource extends ResourceIdentifier
     }
 
     // }}}
+    // {{{ public function save()
+
+    public function save()
+    {
+        $this->checkStore();
+
+        return $this->store->save($this);
+    }
+
+    // }}}
+    // {{{ protected function initAttribute()
+
+    protected function initAttribute($name, $default_value)
+    {
+        $this->attributes[$name] = $default_value;
+    }
+
+    // }}}
+    // {{{ protected function initRelationship()
+
+    protected function initRelationship()
+    {
+    }
+
+    // }}}
+    // {{{ abstract protected function initAttributes()
+
+    abstract protected function initAttributes();
+
+    // }}}
+    // {{{ abstract protected function initRelationships()
+
+    abstract protected function initRelationships();
+
+    // }}}
 
     // Serializable interface
     // {{{ public function serialize()
@@ -145,7 +212,7 @@ class Resource extends ResourceIdentifier
     public function serialize()
     {
         return serialize([
-            'type' => $this->type,
+            'type' => $this->getType(),
             'id' => $this->id,
             'attributes' => $this->attributes,
             'relationships' => $this->relationships,
@@ -159,7 +226,6 @@ class Resource extends ResourceIdentifier
     {
         $data = unserialize($serialized);
 
-        $this->type = $data['type'];
         $this->id = $data['id'];
         $this->attributes = $data['attributes'];
         $this->relationships = $data['relationships'];
