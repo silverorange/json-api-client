@@ -52,7 +52,7 @@ class ToManyRelationship implements ResourceStoreAccess
             throw new InvalidResourceTypeException(
                 sprintf(
                     'Provided resource type “%s” does not match “%s”.',
-                    $resource->type,
+                    $resource->getType(),
                     $this->type
                 )
             );
