@@ -6,14 +6,15 @@ class ToOneRelationship implements ResourceStoreAccess
 {
     // {{{ protected properties
 
-    protected $resource;
+    protected $resource = null;
+    protected $type = null;
 
     // }}}
     // {{{ public function __construct()
 
-    public function __construct(ResourceIdentifier $resource)
+    public function __construct($type)
     {
-        $this->resource = $resource;
+        $this->type = $type;
     }
 
     // }}}
@@ -21,23 +22,9 @@ class ToOneRelationship implements ResourceStoreAccess
 
     public function setStore(ResourceStore $store)
     {
-        $this->resource->setStore($store);
-    }
-
-    // }}}
-    // {{{ public function getType()
-
-    public function getType()
-    {
-        return $this->resource->getType();
-    }
-
-    // }}}
-    // {{{ public function getId()
-
-    public function getId()
-    {
-        return $this->resource->getId();
+        if ($this->resource instanceof ResourceStoreAccess) {
+            $this->resource->setStore($store);
+        }
     }
 
     // }}}
@@ -57,6 +44,16 @@ class ToOneRelationship implements ResourceStoreAccess
 
     public function set(ResourceIdentifier $resource)
     {
+        if ($this->type !== $resource->getType()) {
+            throw new InvalidResourceTypeException(
+                sprintf(
+                    'Provided resource type “%s” does not match “%s”.',
+                    $resource->type,
+                    $this->type
+                )
+            );
+        }
+
         $this->resource = $resource;
     }
 

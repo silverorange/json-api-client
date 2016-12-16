@@ -35,11 +35,11 @@ class ResourceCollection implements ResourceStoreAccess, \Countable, \Serializab
     public function add(ResourceIdentifier $resource)
     {
         if ($resource->getType() !== $this->type) {
-            throw new \InvalidArgumentException(
+            throw new InvalidResourceTypeException(
                 sprintf(
                     'Unable to add resource of type “%s” to '.
                     'collection of type “%s”',
-                    $valuye->getType(),
+                    $resource->getType(),
                     $this->type
                 )
             );
@@ -73,6 +73,14 @@ class ResourceCollection implements ResourceStoreAccess, \Countable, \Serializab
     public function getKeys()
     {
         return array_keys($this->collection);
+    }
+
+    // }}}
+    // {{{ public function getType()
+
+    public function getType()
+    {
+        return $this->type;
     }
 
     // }}}
