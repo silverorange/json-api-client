@@ -2,13 +2,25 @@
 
 namespace silverorange\JsonApiClient;
 
-class ResourceIdentifier implements \Serializable
+class ResourceIdentifier implements ResourceStoreAccess, \Serializable
 {
-    use ResourceStoreAccessTrait;
+    // {{{ private properties
+
+    private $type = null;
+
+    // }}}
     // {{{ protected properties
 
-    protected $type = null;
     protected $id = null;
+    protected $store = null;
+
+    // }}}
+    // {{{ public function setStore()
+
+    public function setStore(ResourceStore $store)
+    {
+        $this->store = $store;
+    }
 
     // }}}
     // {{{ public function getType()
@@ -64,6 +76,19 @@ class ResourceIdentifier implements \Serializable
     {
         $this->type = $data['type'];
         $this->id = $data['id'];
+    }
+
+    // }}}
+    // {{{ protected function checkStore()
+
+    protected function checkStore()
+    {
+        if (!$this->store instanceof ResourceStore) {
+            throw new NoResourceStoreException(
+                'No resource store available to this object. '.
+                'Call the setStore() method.'
+            );
+        }
     }
 
     // }}}

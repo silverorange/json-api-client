@@ -14,9 +14,9 @@ class ResourceStore
 
     protected $http_client = null;
 
-    protected $class_by_type = array();
+    protected $class_by_type = [];
 
-    protected $resources = array();
+    protected $resources = [];
 
     // }}}
     // {{{ public function __construct()
@@ -117,7 +117,9 @@ class ResourceStore
 
         $this->checkJsonBody($body);
 
-        $resource = new Resource();
+        $class = $this->getClass($type);
+
+        $resource = new $class();
         $resource->setStore($this);
         $resource->decode($body['data']);
 
@@ -162,8 +164,10 @@ class ResourceStore
 
     public function save(Resource $resource)
     {
+        $method = ($resource->getId() == '') ? 'POST' : 'PATCH';
+
         $result = $this->http_client->request(
-            'PATCH',
+            $method,
             $this->getResourceAddress(
                 $resource->getType(),
                 $resource->getId()
@@ -175,53 +179,23 @@ class ResourceStore
 
         $this->checkJsonBody($body);
 
-        $resource = new Resource();
         $resource->setStore($this);
         $resource->decode($body['data']);
 
-        // Replace the old resource with a new one
-        $this->setResource(
-            $resource->getType(),
-            $resource->getId(),
-            $resource
-        );
-
-        return $this->getResource(
-            $resource->getType(),
-            $resource->getId()
-        );
+        return $resource;
     }
 
     // }}}
     // {{{ public function create()
 
-    public function create(Resource $resource)
+    public function create($type)
     {
-        $result = $this->http_client->request(
-            'POST',
-            $this->getResourceAddress($resource->getType()),
-            ['json' => $resource->encode()]
-        );
+        $class = $this->getClass($type);
 
-        $body = json_decode($result->getBody(), true);
-
-        $this->checkJsonBody($body);
-
-        $resource = new Resource();
+        $resource = new $class();
         $resource->setStore($this);
-        $resource->decode($body['data']);
 
-        // Replace the old resource with a new one
-        $this->setResource(
-            $resource->getType(),
-            $resource->getId(),
-            $resource
-        );
-
-        return $this->getResource(
-            $resource->getType(),
-            $resource->getId()
-        );
+        return $resource;
     }
 
     // }}}
@@ -280,6 +254,38 @@ class ResourceStore
         if (!is_array($body) || !isset($body['data'])) {
             throw InvalidJsonException('Invalid JSON received.');
         }
+    }
+
+    // }}}
+
+    // class methods
+    // {{{ public function addClass()
+
+    public function addClass($type, $class)
+    {
+        $this->class_by_type[$type] = $class;
+    }
+
+    // }}}
+    // {{{ public function hasClass()
+
+    public function hasClass($type)
+    {
+        return array_key_exists($type, $this->class_by_type);
+    }
+
+    // }}}
+    // {{{ public function getClass()
+
+    public function getClass($type)
+    {
+        if ($this->hasClass($type)) {
+            return $this->class_by_type[$type];
+        }
+
+        throw new ClassNotFoundException(
+            sprintf('No class for type “%s” defined.', $type)
+        );
     }
 
     // }}}

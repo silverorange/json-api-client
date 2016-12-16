@@ -2,12 +2,10 @@
 
 namespace silverorange\JsonApiClient;
 
-class ResourceCollection implements \Countable, \Serializable, \IteratorAggregate
+class ResourceCollection implements ResourceStoreAccess, \Countable, \Serializable, \IteratorAggregate
 {
-    use ResourceStoreAccessTrait;
     // {{{ protected properties
 
-    protected $store = null;
     protected $type = null;
     protected $collection = [];
 
@@ -20,16 +18,28 @@ class ResourceCollection implements \Countable, \Serializable, \IteratorAggregat
     }
 
     // }}}
+    // {{{ public function setStore()
+
+    public function setStore(ResourceStore $store)
+    {
+        // Don't use the object itself to get the interator.
+        // Prevents lazy loading.
+        foreach ($this->collection as $resource) {
+            $resource->setStore($store);
+        }
+    }
+
+    // }}}
     // {{{ public function add()
 
     public function add(ResourceIdentifier $resource)
     {
         if ($resource->getType() !== $this->type) {
-            throw new \InvalidArgumentException(
+            throw new InvalidResourceTypeException(
                 sprintf(
                     'Unable to add resource of type “%s” to '.
                     'collection of type “%s”',
-                    $valuye->getType(),
+                    $resource->getType(),
                     $this->type
                 )
             );
@@ -63,6 +73,14 @@ class ResourceCollection implements \Countable, \Serializable, \IteratorAggregat
     public function getKeys()
     {
         return array_keys($this->collection);
+    }
+
+    // }}}
+    // {{{ public function getType()
+
+    public function getType()
+    {
+        return $this->type;
     }
 
     // }}}
@@ -105,11 +123,26 @@ class ResourceCollection implements \Countable, \Serializable, \IteratorAggregat
         $this->checkStore();
 
         foreach ($collection as $data) {
-            $resource = new Resource();
+            $class = $this->store->getClass($this->type);
+
+            $resource = new $class();
             $resource->setStore($this->store);
             $resource->decode($data);
 
             $this->add($resource);
+        }
+    }
+
+    // }}}
+    // {{{ protected function checkStore()
+
+    protected function checkStore()
+    {
+        if (!$this->store instanceof ResourceStore) {
+            throw new NoResourceStoreException(
+                'No resource store available to this object. '.
+                'Call the setStore() method.'
+            );
         }
     }
 

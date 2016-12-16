@@ -2,34 +2,29 @@
 
 namespace silverorange\JsonApiClient;
 
-class ToOneRelationship
+class ToOneRelationship implements ResourceStoreAccess
 {
     // {{{ protected properties
 
-    protected $resource;
+    protected $resource = null;
+    protected $type = null;
 
     // }}}
     // {{{ public function __construct()
 
-    public function __construct(ResourceIdentifier $resource)
+    public function __construct($type)
     {
-        $this->resource = $resource;
+        $this->type = $type;
     }
 
     // }}}
-    // {{{ public function getType()
+    // {{{ public function setStore()
 
-    public function getType()
+    public function setStore(ResourceStore $store)
     {
-        return $this->resource->getType();
-    }
-
-    // }}}
-    // {{{ public function getId()
-
-    public function getId()
-    {
-        return $this->resource->getId();
+        if ($this->resource instanceof ResourceStoreAccess) {
+            $this->resource->setStore($store);
+        }
     }
 
     // }}}
@@ -49,6 +44,16 @@ class ToOneRelationship
 
     public function set(ResourceIdentifier $resource)
     {
+        if ($this->type !== $resource->getType()) {
+            throw new InvalidResourceTypeException(
+                sprintf(
+                    'Provided resource type “%s” does not match “%s”.',
+                    $resource->getType(),
+                    $this->type
+                )
+            );
+        }
+
         $this->resource = $resource;
     }
 
