@@ -93,16 +93,16 @@ abstract class Resource extends ResourceIdentifier implements ResourceStoreAcces
         $relationships = [];
 
         foreach ($this->to_one_relationships as $name => $relationship) {
-            $encode = $relationship->encodeIdentifier();
-            if ($encode['data'] !== null) {
-                $relationships[$name] = $encode;
+            $encoded = $relationship->encodeIdentifier();
+            if ($encoded['data'] !== null) {
+                $relationships[$name] = $encoded;
             }
         }
 
         foreach ($this->to_many_relationships as $name => $relationship) {
-            $encode = $relationship->encodeIdentifier();
-            if ($encode !== []) {
-                $relationships[$name] = $encode;
+            $encoded = $relationship->encodeIdentifier();
+            if ($encoded !== []) {
+                $relationships[$name] = $encoded;
             }
         }
 
