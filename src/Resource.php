@@ -358,7 +358,7 @@ abstract class Resource extends ResourceIdentifier implements ResourceStoreAcces
 
     protected function getToManyRelationship($name)
     {
-        if ($this->hasToOneRelationship($name)) {
+        if ($this->hasToManyRelationship($name)) {
             return $this->to_many_relationships[$name];
         } else {
             throw new InvalidPropertyException(
