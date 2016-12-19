@@ -7,6 +7,7 @@ class ResourceCollection implements ResourceStoreAccess, \Countable, \Serializab
     // {{{ protected properties
 
     protected $type = null;
+    protected $store = null;
     protected $collection = [];
 
     // }}}
@@ -22,6 +23,8 @@ class ResourceCollection implements ResourceStoreAccess, \Countable, \Serializab
 
     public function setStore(ResourceStore $store)
     {
+        $this->store = $store;
+
         // Don't use the object itself to get the interator.
         // Prevents lazy loading.
         foreach ($this->collection as $resource) {
