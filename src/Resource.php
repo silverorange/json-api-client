@@ -404,6 +404,7 @@ abstract class Resource extends ResourceIdentifier implements ResourceStoreAcces
             'id' => $this->id,
             'attributes' => $this->attributes,
             'to_one_relationships' => $this->to_one_relationships,
+            'to_many_relationships' => $this->to_many_relationships,
         ]);
     }
 
