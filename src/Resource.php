@@ -93,11 +93,23 @@ abstract class Resource extends ResourceIdentifier implements ResourceStoreAcces
         $relationships = [];
 
         foreach ($this->to_one_relationships as $name => $relationship) {
-            $relationships[$name] = $relationship->encodeIdentifier();
+            $encoded = $relationship->encodeIdentifier();
+            if ($encoded['data'] !== null) {
+                $relationships[$name] = $encoded;
+            }
         }
 
         foreach ($this->to_many_relationships as $name => $relationship) {
-            $relationships[$name] = $relationship->encodeIdentifier();
+            $encoded = $relationship->encodeIdentifier();
+            if ($encoded !== []) {
+                $relationships[$name] = $encoded;
+            }
+        }
+
+        $attributes = [];
+
+        foreach ($this->attributes as $name => $value) {
+            $attributes[$name] = $value;
         }
 
         $data = [
@@ -109,7 +121,7 @@ abstract class Resource extends ResourceIdentifier implements ResourceStoreAcces
         }
 
         $data['data']['type'] = $this->getType();
-        $data['data']['attributes'] = $this->attributes;
+        $data['data']['attributes'] = $attributes;
         $data['data']['relationships'] = $relationships;
 
         return $data;
