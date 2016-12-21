@@ -4,6 +4,9 @@
 
 namespace silverorange\JsonApiClient;
 
+use silverorange\JsonApiClient\Exception\InvalidDataException;
+use silverorange\JsonApiClient\Exception\NoResourceStoreException;
+
 class ResourceIdentifier implements ResourceStoreAccess, \Serializable
 {
     // {{{ private properties

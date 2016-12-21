@@ -4,6 +4,8 @@
 
 namespace silverorange\JsonApiClient;
 
+use silverorange\JsonApiClient\Exception\InvalidResourceTypeException;
+
 class ToManyRelationship implements ResourceStoreAccess
 {
     // {{{ protected properties

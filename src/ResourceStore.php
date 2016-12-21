@@ -4,6 +4,12 @@
 
 namespace silverorange\JsonApiClient;
 
+use silverorange\JsonApiClient\Exception\ClassNotFoundException;
+use silverorange\JsonApiClient\Exception\InvalidDataException;
+use silverorange\JsonApiClient\Exception\InvalidJsonException;
+use silverorange\JsonApiClient\Exception\ResourceErrorException;
+use silverorange\JsonApiClient\Exception\ResourceNotFoundException;
+
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Client as HttpClient;
 use GuzzleHttp\Client as HttpClient;

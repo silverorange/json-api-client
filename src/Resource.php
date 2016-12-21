@@ -4,6 +4,9 @@
 
 namespace silverorange\JsonApiClient;
 
+use silverorange\JsonApiClient\Exception\InvalidPropertyException;
+use silverorange\JsonApiClient\Exception\InvalidResourceTypeException;
+
 abstract class Resource extends ResourceIdentifier
 {
     // {{{ class constants
