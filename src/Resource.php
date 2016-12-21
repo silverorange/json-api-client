@@ -15,7 +15,7 @@ abstract class Resource extends ResourceIdentifier implements ResourceStoreAcces
     // }}}
     // {{{ protected properties
 
-    protected $attributes = []
+    protected $attributes = [];
     protected $attributes_types = [];
     protected $to_one_relationships = [];
     protected $to_many_relationships = [];
