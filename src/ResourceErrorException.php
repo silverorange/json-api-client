@@ -16,7 +16,7 @@ class ResourceErrorException extends \Exception
     // }}}
     // {{{ public function __construct()
 
-    public function __construct($message, $code = 0, array $error)
+    public function __construct($message, $code, array $error)
     {
         if ($message === '' && isset($error['detail'])) {
             $message = $error['detail'];
