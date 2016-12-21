@@ -12,7 +12,6 @@ use silverorange\JsonApiClient\Exception\ResourceNotFoundException;
 
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Client as HttpClient;
-use GuzzleHttp\Client as HttpClient;
 use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\Exception\ServerException;
 
