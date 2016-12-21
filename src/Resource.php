@@ -234,7 +234,7 @@ abstract class Resource extends ResourceIdentifier implements ResourceStoreAcces
     {
         if ($this->hasAttribute($name)) {
             if ($this->attributes_types[$name] === self::TYPE_DATE &&
-                $this->attributes_types[$name] !== null) {
+                is_string($this->attributes_types[$name])) {
                 $value = new \DateTime($value);
             }
 
