@@ -76,6 +76,8 @@ class ResourceIdentifier implements ResourceStoreAccess, \Serializable
 
     public function decode(array $data)
     {
+        $this->validateData($data);
+
         $this->type = $data['type'];
         $this->id = $data['id'];
     }
@@ -89,6 +91,44 @@ class ResourceIdentifier implements ResourceStoreAccess, \Serializable
             throw new NoResourceStoreException(
                 'No resource store available to this object. '.
                 'Call the setStore() method.'
+            );
+        }
+    }
+
+    // }}}
+    // {{{ protected function validateData()
+
+    protected function validateData(array $data)
+    {
+        if (!isset($data['type'])) {
+            throw new InvalidDataException(
+                'Resource data is missing required "type" field.',
+                0,
+                $data
+            );
+        }
+
+        if (!is_string($data['type'])) {
+            throw new InvalidDataException(
+                'Resource data "type" field is not a string.',
+                0,
+                $data
+            );
+        }
+
+        if (!isset($data['id'])) {
+            throw new InvalidDataException(
+                'Resource data is missing required "id" field.',
+                0,
+                $data
+            );
+        }
+
+        if (!is_string($data['id'])) {
+            throw new InvalidDataException(
+                'Resource data "id" field is not a string.',
+                0,
+                $data
             );
         }
     }

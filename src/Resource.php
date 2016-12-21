@@ -4,7 +4,7 @@
 
 namespace silverorange\JsonApiClient;
 
-abstract class Resource extends ResourceIdentifier implements ResourceStoreAccess
+abstract class Resource extends ResourceIdentifier
 {
     // {{{ class constants
 
@@ -147,21 +147,14 @@ abstract class Resource extends ResourceIdentifier implements ResourceStoreAcces
     public function decode(array $data)
     {
         $this->checkStore();
-
-        if ($data['type'] !== $this->getType()) {
-            throw new InvalidResourceTypeException(
-                sprintf(
-                    'Resource type “%s” provided does not match expected type “%s”',
-                    $data['type'],
-                    $this->getType()
-                )
-            );
-        }
+        $this->validateData($data);
 
         $this->id = $data['id'];
 
-        foreach ($data['attributes'] as $name => $value) {
-            $this->setAttribute($name, $value);
+        if (array_key_exists('attributes', $data)) {
+            foreach ($data['attributes'] as $name => $value) {
+                $this->setAttribute($name, $value);
+            }
         }
 
         if (array_key_exists('relationships', $data)) {
@@ -215,6 +208,24 @@ abstract class Resource extends ResourceIdentifier implements ResourceStoreAcces
         $this->checkStore();
 
         return $this->store->save($this);
+    }
+
+    // }}}
+    // {{{ protected function validateData()
+
+    protected function validateData(array $data)
+    {
+        parent::validateData($data);
+
+        if ($data['type'] !== $this->getType()) {
+            throw new InvalidResourceTypeException(
+                sprintf(
+                    'Resource type “%s” provided does not match expected type “%s”',
+                    $data['type'],
+                    $this->getType()
+                )
+            );
+        }
     }
 
     // }}}

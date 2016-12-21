@@ -73,18 +73,22 @@ class ResourceStore
 
         $body = json_decode($result->getBody(), true);
 
-        $this->checkJsonBody($body);
+        $this->validateTopLevelJsonResponse($body);
 
-        $collection = new ResourceCollection($type);
-        $collection->setStore($this);
-        $collection->decode($body['data']);
+        if (isset($body['errors'])) {
+            $this->handleTopLevelErrorResponse($body);
+        } else {
+            $collection = new ResourceCollection($type);
+            $collection->setStore($this);
+            $collection->decode($body['data']);
 
-        foreach ($collection as $resource) {
-            $this->setResource(
-                $resource->getType(),
-                $resource->getId(),
-                $resource
-            );
+            foreach ($collection as $resource) {
+                $this->setResource(
+                    $resource->getType(),
+                    $resource->getId(),
+                    $resource
+                );
+            }
         }
 
         return $collection;
@@ -93,6 +97,17 @@ class ResourceStore
     // }}}
     // {{{ public function find()
 
+    /**
+     * Finds a resource either from the cache or if not present in the cache,
+     * from the API server.
+     *
+     * @param string $type         the resource type to find.
+     * @param string $id           the resource identifier.
+     * @param array  $query_params optional array of extra parameters.
+     *
+     * @return Resource|null the resource object or null if no such resource
+     *         could be found.
+     */
     public function find($type, $id, array $query_params = [])
     {
         $resource = $this->peek($type, $id);
@@ -107,8 +122,20 @@ class ResourceStore
     // }}}
     // {{{ public function query()
 
+    /**
+     * Finds a resource from the API server.
+     *
+     * @param string $type         the resource type to find.
+     * @param string $id           the resource identifier.
+     * @param array  $query_params optional array of extra parameters.
+     *
+     * @return Resource|null the resource object or null if no such resource
+     *         could be found.
+     */
     public function query($type, $id, array $query_params = [])
     {
+        $resource = null;
+
         $result = $this->http_client->request(
             'GET',
             $this->getResourceAddress($type, $id),
@@ -117,15 +144,23 @@ class ResourceStore
 
         $body = json_decode($result->getBody(), true);
 
-        $this->checkJsonBody($body);
+        $this->validateTopLevelJsonResponse($body);
 
-        $class = $this->getClass($type);
+        if (isset($body['errors'])) {
+            try {
+                $this->handleTopLevelErrorResponse($body);
+            } catch (ResourceNotFoundException $e) {
+                // not found is non-fatal for query method
+            }
+        } else {
+            $class = $this->getClass($type);
 
-        $resource = new $class();
-        $resource->setStore($this);
-        $resource->decode($body['data']);
+            $resource = new $class();
+            $resource->setStore($this);
+            $resource->decode($body['data']);
 
-        $this->setResource($type, $id, $resource);
+            $this->setResource($type, $id, $resource);
+        }
 
         return $resource;
     }
@@ -150,6 +185,16 @@ class ResourceStore
     // }}}
     // {{{ public function peek()
 
+    /**
+     * Finds a resource from the cache.
+     *
+     * @param string $type         the resource type to find.
+     * @param string $id           the resource identifier.
+     * @param array  $query_params optional array of extra parameters.
+     *
+     * @return Resource|null the resource object or null if no such resource
+     *         could be found.
+     */
     public function peek($type, $id)
     {
         $resource = null;
@@ -179,10 +224,14 @@ class ResourceStore
 
         $body = json_decode($result->getBody(), true);
 
-        $this->checkJsonBody($body);
+        $this->validateTopLevelJsonResponse($body);
 
-        $resource->setStore($this);
-        $resource->decode($body['data']);
+        if (isset($body['errors'])) {
+            $this->handleTopLevelErrorResponse($body);
+        } else {
+            $resource->setStore($this);
+            $resource->decode($body['data']);
+        }
 
         return $resource;
     }
@@ -249,16 +298,46 @@ class ResourceStore
     }
 
     // }}}
-    // {{{ protected function checkJsonBody()
+    // {{{ protected function validateTopLevelJsonResponse()
 
-    protected function checkJsonBody($body)
+    protected function validateTopLevelJsonResponse($body)
     {
-        if (!is_array($body) || !isset($body['data'])) {
-            throw InvalidJsonException('Invalid JSON received.');
+        if (!is_array($body)) {
+            throw new InvalidJsonException('Invalid JSON received.');
+        }
+
+        if (!isset($body['data']) && !isset($body['errors'])) {
+            throw new InvalidDataException(
+                'Response is missing required top-level "data" or "errors" field.',
+                0,
+                $body
+            );
+        }
+
+        if (isset($body['data']) && isset($body['errors'])) {
+            throw new InvalidDataException(
+                'Response can not contain both a top-level "data" and top-level "errors" field.',
+                0,
+                $body
+            );
         }
     }
 
     // }}}
+    // {{{ protected function handleTopLevelErrorResponse()
+
+    protected function handleTopLevelErrorResponse(array $body)
+    {
+        if (count($body['errors']) > 0) {
+            $error = $body['errors'][0];
+            if (isset($error['status']) && $error['status'] === '404') {
+                throw new ResourceNotFoundException('', 0, $error);
+            }
+            throw new ResourceErrorException('', 0, $error);
+        }
+
+        throw new ResourceErrorException('Unknown error.', 0, []);
+    }
 
     // class methods
     // {{{ public function addClass()
