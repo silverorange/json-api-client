@@ -339,6 +339,8 @@ class ResourceStore
         throw new ResourceErrorException('Unknown error.', 0, []);
     }
 
+    // }}}
+
     // class methods
     // {{{ public function addClass()
 
