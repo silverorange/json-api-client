@@ -6,6 +6,9 @@ namespace silverorange\JsonApiClient;
 
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Client as HttpClient;
+use GuzzleHttp\Client as HttpClient;
+use GuzzleHttp\Exception\ClientException;
+use GuzzleHttp\Exception\ServerException;
 
 class ResourceStore
 {
@@ -65,30 +68,22 @@ class ResourceStore
 
     public function findAll($type, array $query_params = [])
     {
-        $result = $this->http_client->request(
+        $body = $this->doRequest(
             'GET',
             $this->getResourceAddress($type),
             ['query' => $query_params]
         );
 
-        $body = json_decode($result->getBody(), true);
+        $collection = new ResourceCollection($type);
+        $collection->setStore($this);
+        $collection->decode($body['data']);
 
-        $this->validateTopLevelJsonResponse($body);
-
-        if (isset($body['errors'])) {
-            $this->handleTopLevelErrorResponse($body);
-        } else {
-            $collection = new ResourceCollection($type);
-            $collection->setStore($this);
-            $collection->decode($body['data']);
-
-            foreach ($collection as $resource) {
-                $this->setResource(
-                    $resource->getType(),
-                    $resource->getId(),
-                    $resource
-                );
-            }
+        foreach ($collection as $resource) {
+            $this->setResource(
+                $resource->getType(),
+                $resource->getId(),
+                $resource
+            );
         }
 
         return $collection;
@@ -136,31 +131,23 @@ class ResourceStore
     {
         $resource = null;
 
-        $result = $this->http_client->request(
-            'GET',
-            $this->getResourceAddress($type, $id),
-            ['query' => $query_params]
-        );
-
-        $body = json_decode($result->getBody(), true);
-
-        $this->validateTopLevelJsonResponse($body);
-
-        if (isset($body['errors'])) {
-            try {
-                $this->handleTopLevelErrorResponse($body);
-            } catch (ResourceNotFoundException $e) {
-                // not found is non-fatal for query method
-            }
-        } else {
-            $class = $this->getClass($type);
-
-            $resource = new $class();
-            $resource->setStore($this);
-            $resource->decode($body['data']);
-
-            $this->setResource($type, $id, $resource);
+        try {
+            $body = $this->doRequest(
+                'GET',
+                $this->getResourceAddress($type, $id),
+                ['query' => $query_params]
+            );
+        } catch (ResourceNotFoundException $e) {
+            // not found is non-fatal for query method
         }
+
+        $class = $this->getClass($type);
+
+        $resource = new $class();
+        $resource->setStore($this);
+        $resource->decode($body['data']);
+
+        $this->setResource($type, $id, $resource);
 
         return $resource;
     }
@@ -213,7 +200,7 @@ class ResourceStore
     {
         $method = ($resource->getId() == '') ? 'POST' : 'PATCH';
 
-        $result = $this->http_client->request(
+        $body = $this->doRequest(
             $method,
             $this->getResourceAddress(
                 $resource->getType(),
@@ -222,16 +209,8 @@ class ResourceStore
             ['json' => $resource->encode()]
         );
 
-        $body = json_decode($result->getBody(), true);
-
-        $this->validateTopLevelJsonResponse($body);
-
-        if (isset($body['errors'])) {
-            $this->handleTopLevelErrorResponse($body);
-        } else {
-            $resource->setStore($this);
-            $resource->decode($body['data']);
-        }
+        $resource->setStore($this);
+        $resource->decode($body['data']);
 
         return $resource;
     }
@@ -247,6 +226,35 @@ class ResourceStore
         $resource->setStore($this);
 
         return $resource;
+    }
+
+    // }}}
+    // {{{ protected function doRequest()
+
+    protected function doRequest($method, $url, array $params)
+    {
+        try {
+            $response = $this->http_client->request(
+                $method,
+                $url,
+                $params
+            );
+        } catch (ClientException $e) {
+            $response = $e->getResponse();
+        } catch (ServerException $e) {
+            $response = $e->getResponse();
+        }
+
+        $body = $response->getBody();
+        $body = json_decode($body, true);
+
+        $this->validateTopLevelJsonResponse($body);
+
+        if (isset($body['errors'])) {
+            $this->handleTopLevelErrorResponse($body);
+        }
+
+        return $body;
     }
 
     // }}}
