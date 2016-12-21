@@ -1,12 +1,22 @@
 <?php
 
+/* vim: set expandtab tabstop=4 shiftwidth=4: */
+
 namespace silverorange\JsonApiClient;
 
 abstract class Resource extends ResourceIdentifier implements ResourceStoreAccess
 {
+    // {{{ class constants
+
+    const TYPE_STRING = 0;
+    const TYPE_NUMBER = 1;
+    const TYPE_DATE = 2;
+
+    // }}}
     // {{{ protected properties
 
     protected $attributes = [];
+    protected $attributes_types = [];
     protected $to_one_relationships = [];
     protected $to_many_relationships = [];
 
@@ -109,6 +119,10 @@ abstract class Resource extends ResourceIdentifier implements ResourceStoreAcces
         $attributes = [];
 
         foreach ($this->attributes as $name => $value) {
+            if ($value instanceof \DateTime) {
+                $value = $value->format('c');
+            }
+
             $attributes[$name] = $value;
         }
 
@@ -219,6 +233,11 @@ abstract class Resource extends ResourceIdentifier implements ResourceStoreAcces
     protected function setAttribute($name, $value)
     {
         if ($this->hasAttribute($name)) {
+            if ($this->attributes_types[$name] === self::TYPE_DATE &&
+                is_string($value)) {
+                $value = new \DateTime($value);
+            }
+
             $this->attributes[$name] = $value;
         } else {
             throw new InvalidPropertyException(
@@ -252,9 +271,10 @@ abstract class Resource extends ResourceIdentifier implements ResourceStoreAcces
     // }}}
     // {{{ protected function initAttribute()
 
-    protected function initAttribute($name, $default_value)
+    protected function initAttribute($name, $default_value, $type = self::TYPE_STRING)
     {
         $this->attributes[$name] = $default_value;
+        $this->attributes_types[$name] = $type;
     }
 
     // }}}
