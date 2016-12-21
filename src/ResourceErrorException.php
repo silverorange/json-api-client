@@ -21,7 +21,10 @@ class ResourceErrorException extends \Exception
         if ($message === '' && isset($error['detail'])) {
             $message = $error['detail'];
         }
+
         parent::__construct($message, $code);
+
+        $this->error = $error;
     }
 
     // }}}
