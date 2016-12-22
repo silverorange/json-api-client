@@ -267,7 +267,10 @@ class ResourceStore
 
     protected function hasResource($type, $id)
     {
-        return isset($this->resources[$type][$id]);
+        return (
+            $this->hasResources($type) &&
+            isset($this->resources[$type][$id])
+        );
     }
 
     // }}}
