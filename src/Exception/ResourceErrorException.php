@@ -22,7 +22,7 @@ class ResourceErrorException extends \Exception
             if (is_string($error['detail'])) {
                 // Standard JSON API error object.
                 $message = $error['detail'];
-            } elseif (is_array($error['detail'])i && count($error['detail']) > 0) {
+            } elseif (is_array($error['detail']) && count($error['detail']) > 0) {
                 // Extended error object from jsonapi-server
                 $detail = $error['detail'][0];
                 $message = $detail['message'];
