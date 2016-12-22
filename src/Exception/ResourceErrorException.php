@@ -19,7 +19,7 @@ class ResourceErrorException extends \Exception
     public function __construct($message, $code, array $error)
     {
         if ($message === '' && isset($error['detail'])) {
-            $message = $error['detail'];
+            $message = json_encode($error['detail']);
         }
 
         parent::__construct($message, $code);
