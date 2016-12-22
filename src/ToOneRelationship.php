@@ -4,6 +4,8 @@
 
 namespace silverorange\JsonApiClient;
 
+use silverorange\JsonApiClient\Exception\InvalidResourceTypeException;
+
 class ToOneRelationship implements ResourceStoreAccess
 {
     // {{{ protected properties

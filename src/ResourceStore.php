@@ -4,8 +4,16 @@
 
 namespace silverorange\JsonApiClient;
 
+use silverorange\JsonApiClient\Exception\ClassNotFoundException;
+use silverorange\JsonApiClient\Exception\InvalidDataException;
+use silverorange\JsonApiClient\Exception\InvalidJsonException;
+use silverorange\JsonApiClient\Exception\ResourceErrorException;
+use silverorange\JsonApiClient\Exception\ResourceNotFoundException;
+
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Client as HttpClient;
+use GuzzleHttp\Exception\ClientException;
+use GuzzleHttp\Exception\ServerException;
 
 class ResourceStore
 {
@@ -65,15 +73,11 @@ class ResourceStore
 
     public function findAll($type, array $query_params = [])
     {
-        $result = $this->http_client->request(
+        $body = $this->doRequest(
             'GET',
             $this->getResourceAddress($type),
             ['query' => $query_params]
         );
-
-        $body = json_decode($result->getBody(), true);
-
-        $this->checkJsonBody($body);
 
         $collection = new ResourceCollection($type);
         $collection->setStore($this);
@@ -93,6 +97,17 @@ class ResourceStore
     // }}}
     // {{{ public function find()
 
+    /**
+     * Finds a resource either from the cache or if not present in the cache,
+     * from the API server.
+     *
+     * @param string $type         the resource type to find.
+     * @param string $id           the resource identifier.
+     * @param array  $query_params optional array of extra parameters.
+     *
+     * @return Resource|null the resource object or null if no such resource
+     *         could be found.
+     */
     public function find($type, $id, array $query_params = [])
     {
         $resource = $this->peek($type, $id);
@@ -107,25 +122,37 @@ class ResourceStore
     // }}}
     // {{{ public function query()
 
+    /**
+     * Finds a resource from the API server.
+     *
+     * @param string $type         the resource type to find.
+     * @param string $id           the resource identifier.
+     * @param array  $query_params optional array of extra parameters.
+     *
+     * @return Resource|null the resource object or null if no such resource
+     *         could be found.
+     */
     public function query($type, $id, array $query_params = [])
     {
-        $result = $this->http_client->request(
-            'GET',
-            $this->getResourceAddress($type, $id),
-            ['query' => $query_params]
-        );
+        $resource = null;
 
-        $body = json_decode($result->getBody(), true);
+        try {
+            $class = $this->getClass($type);
 
-        $this->checkJsonBody($body);
+            $body = $this->doRequest(
+                'GET',
+                $this->getResourceAddress($type, $id),
+                ['query' => $query_params]
+            );
 
-        $class = $this->getClass($type);
+            $resource = new $class();
+            $resource->setStore($this);
+            $resource->decode($body['data']);
 
-        $resource = new $class();
-        $resource->setStore($this);
-        $resource->decode($body['data']);
-
-        $this->setResource($type, $id, $resource);
+            $this->setResource($type, $id, $resource);
+        } catch (ResourceNotFoundException $e) {
+            // not found is non-fatal for query method
+        }
 
         return $resource;
     }
@@ -150,6 +177,16 @@ class ResourceStore
     // }}}
     // {{{ public function peek()
 
+    /**
+     * Finds a resource from the cache.
+     *
+     * @param string $type         the resource type to find.
+     * @param string $id           the resource identifier.
+     * @param array  $query_params optional array of extra parameters.
+     *
+     * @return Resource|null the resource object or null if no such resource
+     *         could be found.
+     */
     public function peek($type, $id)
     {
         $resource = null;
@@ -168,7 +205,7 @@ class ResourceStore
     {
         $method = ($resource->getId() == '') ? 'POST' : 'PATCH';
 
-        $result = $this->http_client->request(
+        $body = $this->doRequest(
             $method,
             $this->getResourceAddress(
                 $resource->getType(),
@@ -176,10 +213,6 @@ class ResourceStore
             ),
             ['json' => $resource->encode()]
         );
-
-        $body = json_decode($result->getBody(), true);
-
-        $this->checkJsonBody($body);
 
         $resource->setStore($this);
         $resource->decode($body['data']);
@@ -201,11 +234,43 @@ class ResourceStore
     }
 
     // }}}
+    // {{{ protected function doRequest()
+
+    protected function doRequest($method, $url, array $params)
+    {
+        try {
+            $response = $this->http_client->request(
+                $method,
+                $url,
+                $params
+            );
+        } catch (ClientException $e) {
+            $response = $e->getResponse();
+        } catch (ServerException $e) {
+            $response = $e->getResponse();
+        }
+
+        $body = $response->getBody();
+        $body = json_decode($body, true);
+
+        $this->validateTopLevelJsonResponse($body);
+
+        if (isset($body['errors'])) {
+            $this->handleTopLevelErrorResponse($body);
+        }
+
+        return $body;
+    }
+
+    // }}}
     // {{{ protected function hasResource()
 
     protected function hasResource($type, $id)
     {
-        return isset($this->resources[$type][$id]);
+        return (
+            $this->hasResources($type) &&
+            isset($this->resources[$type][$id])
+        );
     }
 
     // }}}
@@ -249,13 +314,45 @@ class ResourceStore
     }
 
     // }}}
-    // {{{ protected function checkJsonBody()
+    // {{{ protected function validateTopLevelJsonResponse()
 
-    protected function checkJsonBody($body)
+    protected function validateTopLevelJsonResponse($body)
     {
-        if (!is_array($body) || !isset($body['data'])) {
-            throw InvalidJsonException('Invalid JSON received.');
+        if (!is_array($body)) {
+            throw new InvalidJsonException('Invalid JSON received.');
         }
+
+        if (!isset($body['data']) && !isset($body['errors'])) {
+            throw new InvalidDataException(
+                'Response is missing required top-level "data" or "errors" field.',
+                0,
+                $body
+            );
+        }
+
+        if (isset($body['data']) && isset($body['errors'])) {
+            throw new InvalidDataException(
+                'Response can not contain both a top-level "data" and top-level "errors" field.',
+                0,
+                $body
+            );
+        }
+    }
+
+    // }}}
+    // {{{ protected function handleTopLevelErrorResponse()
+
+    protected function handleTopLevelErrorResponse(array $body)
+    {
+        if (count($body['errors']) > 0) {
+            $error = $body['errors'][0];
+            if (isset($error['status']) && $error['status'] === '404') {
+                throw new ResourceNotFoundException('', 0, $error);
+            }
+            throw new ResourceErrorException('', 0, $error);
+        }
+
+        throw new ResourceErrorException('Unknown error.', 0, []);
     }
 
     // }}}

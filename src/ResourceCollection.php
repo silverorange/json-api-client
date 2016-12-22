@@ -4,6 +4,9 @@
 
 namespace silverorange\JsonApiClient;
 
+use silverorange\JsonApiClient\Exception\InvalidResourceTypeException;
+use silverorange\JsonApiClient\Exception\NoResourceStoreException;
+
 class ResourceCollection implements ResourceStoreAccess, \Countable, \Serializable, \IteratorAggregate
 {
     // {{{ protected properties
