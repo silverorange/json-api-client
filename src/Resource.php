@@ -214,6 +214,16 @@ abstract class Resource extends ResourceIdentifier
     }
 
     // }}}
+    // {{{ public function delete()
+
+    public function delete()
+    {
+        $this->checkStore();
+
+        $this->store->delete($this);
+    }
+
+    // }}}
     // {{{ protected function validateData()
 
     protected function validateData(array $data)
