@@ -250,12 +250,13 @@ class ResourceStore
     public function delete(Resource $resource)
     {
         if ($resource->getId() != '') {
-            $result = $this->http_client->request(
+            $this->doRequest(
                 'DELETE',
                 $this->getResourceAddress(
                     $resource->getType(),
                     $resource->getId()
-                )
+                ),
+                array()
             );
         }
     }
