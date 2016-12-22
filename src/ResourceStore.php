@@ -142,17 +142,17 @@ class ResourceStore
                 $this->getResourceAddress($type, $id),
                 ['query' => $query_params]
             );
+
+            $class = $this->getClass($type);
+
+            $resource = new $class();
+            $resource->setStore($this);
+            $resource->decode($body['data']);
+
+            $this->setResource($type, $id, $resource);
         } catch (ResourceNotFoundException $e) {
             // not found is non-fatal for query method
         }
-
-        $class = $this->getClass($type);
-
-        $resource = new $class();
-        $resource->setStore($this);
-        $resource->decode($body['data']);
-
-        $this->setResource($type, $id, $resource);
 
         return $resource;
     }
