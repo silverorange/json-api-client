@@ -256,7 +256,7 @@ class ResourceStore
                     $resource->getType(),
                     $resource->getId()
                 ),
-                array()
+                []
             );
         }
     }
