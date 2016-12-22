@@ -137,13 +137,13 @@ class ResourceStore
         $resource = null;
 
         try {
+            $class = $this->getClass($type);
+
             $body = $this->doRequest(
                 'GET',
                 $this->getResourceAddress($type, $id),
                 ['query' => $query_params]
             );
-
-            $class = $this->getClass($type);
 
             $resource = new $class();
             $resource->setStore($this);
