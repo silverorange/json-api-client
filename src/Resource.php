@@ -307,9 +307,9 @@ abstract class Resource extends ResourceIdentifier
     abstract protected function initAttributes();
 
     // }}}
-    // {{{ protected function isSaved()
+    // {{{ public function isSaved()
 
-    protected function isSaved()
+    public function isSaved()
     {
         return $this->getId() != '';
     }
