@@ -4,6 +4,6 @@
 
 namespace silverorange\JsonApiClient\Exception;
 
-class ResourceNotFoundExeption extends ResourceErrorException
+class ResourceNotFoundException extends ResourceErrorException
 {
 }
