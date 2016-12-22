@@ -249,7 +249,7 @@ class ResourceStore
     
     public function delete(Resource $resource)
     {
-        if ($resource->getId() != '') {
+        if ($resource->isSaved()) {
             $this->doRequest(
                 'DELETE',
                 $this->getResourceAddress(
