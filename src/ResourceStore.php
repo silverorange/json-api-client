@@ -245,6 +245,22 @@ class ResourceStore
     }
 
     // }}}
+    // {{{ public function delete()
+    
+    public function delete(Resource $resource)
+    {
+        if ($resource->getId() != '') {
+            $result = $this->http_client->request(
+                'DELETE',
+                $this->getResourceAddress(
+                    $resource->getType(),
+                    $resource->getId()
+                )
+            );
+        }
+    }
+
+    // }}}
     // {{{ public function create()
 
     public function create($type)
