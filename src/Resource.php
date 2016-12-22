@@ -449,6 +449,7 @@ abstract class Resource extends ResourceIdentifier
             'type' => $this->getType(),
             'id' => $this->id,
             'attributes' => $this->attributes,
+            'attributes_types' => $this->attributes_types,
             'to_one_relationships' => $this->to_one_relationships,
             'to_many_relationships' => $this->to_many_relationships,
         ]);
@@ -463,6 +464,7 @@ abstract class Resource extends ResourceIdentifier
 
         $this->id = $data['id'];
         $this->attributes = $data['attributes'];
+        $this->attributes_types = $data['attributes_types'];
         $this->to_one_relationships = $data['to_one_relationships'];
         $this->to_many_relationships = $data['to_many_relationships'];
     }
