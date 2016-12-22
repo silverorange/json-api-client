@@ -79,6 +79,14 @@ class ResourceStore
             ['query' => $query_params]
         );
 
+        if (!isset($body['data'])) {
+            throw new InvalidDataException(
+                'Find collection response is missing required "data" field.',
+                0,
+                $body
+            );
+        }
+
         $collection = new ResourceCollection($type);
         $collection->setStore($this);
         $collection->decode($body['data']);
@@ -144,6 +152,14 @@ class ResourceStore
                 $this->getResourceAddress($type, $id),
                 ['query' => $query_params]
             );
+
+            if (!isset($body['data'])) {
+                throw new InvalidDataException(
+                    'Find resource response is missing required "data" field.',
+                    0,
+                    $body
+                );
+            }
 
             $resource = new $class();
             $resource->setStore($this);
@@ -214,6 +230,14 @@ class ResourceStore
             ['json' => $resource->encode()]
         );
 
+        if (!isset($body['data'])) {
+            throw new InvalidDataException(
+                'Save resource response is missing required "data" field.',
+                0,
+                $body
+            );
+        }
+
         $resource->setStore($this);
         $resource->decode($body['data']);
 
@@ -250,13 +274,17 @@ class ResourceStore
             $response = $e->getResponse();
         }
 
-        $body = $response->getBody();
-        $body = json_decode($body, true);
+        if ($response->getStatusCode() === 204) {
+            $body = null;
+        } else {
+            $body = $response->getBody();
+            $body = json_decode($body, true);
 
-        $this->validateTopLevelJsonResponse($body);
+            $this->validateTopLevelJsonResponse($body);
 
-        if (isset($body['errors'])) {
-            $this->handleTopLevelErrorResponse($body);
+            if (isset($body['errors'])) {
+                $this->handleTopLevelErrorResponse($body);
+            }
         }
 
         return $body;
@@ -322,9 +350,12 @@ class ResourceStore
             throw new InvalidJsonException('Invalid JSON received.');
         }
 
-        if (!isset($body['data']) && !isset($body['errors'])) {
+        if (!isset($body['data']) &&
+            !isset($body['errors']) &&
+            !isset($body['meta'])
+        ) {
             throw new InvalidDataException(
-                'Response is missing required top-level "data" or "errors" field.',
+                'Response is missing required top-level "data", "errors" or "meta" field.',
                 0,
                 $body
             );
