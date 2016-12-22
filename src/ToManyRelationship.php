@@ -78,4 +78,12 @@ class ToManyRelationship implements ResourceStoreAccess
     }
 
     // }}}
+    // {{{ public function save()
+
+    public function save()
+    {
+        // TODO: Add saving for to many relationship
+    }
+
+    // }}}
 }

@@ -229,6 +229,14 @@ abstract class Resource extends ResourceIdentifier
     {
         $this->checkStore();
 
+        foreach ($this->to_one_relationships as $relationship) {
+			$relationship->save();
+        }
+
+        foreach ($this->to_many_relationships as $relationship) {
+			$relationship->save();
+        }
+
         return $this->store->save($this);
     }
 
@@ -240,6 +248,22 @@ abstract class Resource extends ResourceIdentifier
         $this->checkStore();
 
         $this->store->delete($this);
+    }
+
+    // }}}
+    // {{{ public function isNew()
+
+    public function isNew()
+    {
+        return ($this->getId() === null);
+    }
+
+    // }}}
+    // {{{ public function isDirty()
+
+    public function isDirty()
+    {
+        return ($this->isNew());
     }
 
     // }}}

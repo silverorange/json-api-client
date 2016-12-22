@@ -74,4 +74,14 @@ class ToOneRelationship implements ResourceStoreAccess
     }
 
     // }}}
+    // {{{ public function save()
+
+    public function save()
+    {
+        if ($this->resource instanceof Resource && $this->resource->isNew()) {
+            $this->resource->save();
+        }
+    }
+
+    // }}}
 }
