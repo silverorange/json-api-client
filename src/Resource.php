@@ -133,7 +133,7 @@ abstract class Resource extends ResourceIdentifier
             'data' => []
         ];
 
-        if ($this->getId() != '') {
+        if ($this->isSaved()) {
             $data['data']['id'] = $this->getId();
         }
 
@@ -211,6 +211,16 @@ abstract class Resource extends ResourceIdentifier
         $this->checkStore();
 
         return $this->store->save($this);
+    }
+
+    // }}}
+    // {{{ public function delete()
+
+    public function delete()
+    {
+        $this->checkStore();
+
+        $this->store->delete($this);
     }
 
     // }}}
@@ -295,6 +305,14 @@ abstract class Resource extends ResourceIdentifier
     // {{{ abstract protected function initAttributes()
 
     abstract protected function initAttributes();
+
+    // }}}
+    // {{{ public function isSaved()
+
+    public function isSaved()
+    {
+        return $this->getId() != '';
+    }
 
     // }}}
 
