@@ -36,7 +36,7 @@ class ToOneRelationship implements ResourceStoreAccess
 
     public function get()
     {
-        if ($this->resource instanceof ResourceIdentifier) {
+        if (get_class($this->resource) === ResourceIdentifier::class) {
             $this->resource = $this->resource->getResource();
         }
 

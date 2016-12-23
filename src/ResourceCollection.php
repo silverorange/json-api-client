@@ -68,7 +68,7 @@ class ResourceCollection implements ResourceStoreAccess, \Countable, \Serializab
         }
 
         $resource = $this->collection[$id];
-        if ($resource instanceof ResourceIdentifier) {
+        if (get_class($resource) === ResourceIdentifier::class) {
             $this->add($resource->getResource());
         }
 
