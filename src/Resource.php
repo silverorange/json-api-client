@@ -22,6 +22,7 @@ abstract class Resource extends ResourceIdentifier
     protected $attributes_types = [];
     protected $to_one_relationships = [];
     protected $to_many_relationships = [];
+    protected $fetched_date = null;
 
     // }}}
     // {{{ public function __construct()
@@ -50,6 +51,24 @@ abstract class Resource extends ResourceIdentifier
                 $relationship->setStore($store);
             }
         }
+    }
+
+    // }}}
+    // {{{ public function setFetchedDate()
+
+    public function setFetchedDate($fetched_date)
+    {
+        if (is_string($fetched_date)) {
+            $this->fetched_date = new \DateTime($fetched_date);
+        }
+    }
+
+    // }}}
+    // {{{ public function getFetchedDate()
+
+    public function getFetchedDate()
+    {
+        return $this->fetched_date;
     }
 
     // }}}
@@ -470,6 +489,7 @@ abstract class Resource extends ResourceIdentifier
             'attributes_types' => $this->attributes_types,
             'to_one_relationships' => $this->to_one_relationships,
             'to_many_relationships' => $this->to_many_relationships,
+            'fetched_date' => $this->fetched_date,
         ]);
     }
 
@@ -485,6 +505,7 @@ abstract class Resource extends ResourceIdentifier
         $this->attributes_types = $data['attributes_types'];
         $this->to_one_relationships = $data['to_one_relationships'];
         $this->to_many_relationships = $data['to_many_relationships'];
+        $this->fetched_date = $data['fetched_date'];
     }
 
     // }}}

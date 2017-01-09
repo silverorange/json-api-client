@@ -92,6 +92,10 @@ class ResourceStore
         $collection->decode($body['data']);
 
         foreach ($collection as $resource) {
+            if (isset($body['meta']['timeStamp'])) {
+                $resource->setFetchedDate($body['meta']['timeStamp']);
+            }
+
             $this->setResource(
                 $resource->getType(),
                 $resource->getId(),
@@ -164,6 +168,10 @@ class ResourceStore
             $resource = new $class();
             $resource->setStore($this);
             $resource->decode($body['data']);
+
+            if (isset($body['meta']['timeStamp'])) {
+                $resource->setFetchedDate($body['meta']['timeStamp']);
+            }
 
             $this->setResource($type, $id, $resource);
         } catch (ResourceNotFoundException $e) {
@@ -240,6 +248,10 @@ class ResourceStore
 
         $resource->setStore($this);
         $resource->decode($body['data']);
+
+        if (isset($body['meta']['timeStamp'])) {
+            $resource->setFetchedDate($body['meta']['timeStamp']);
+        }
 
         return $resource;
     }
