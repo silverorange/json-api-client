@@ -489,3 +489,4 @@ abstract class Resource extends ResourceIdentifier
 
     // }}}
 }
+?>
