@@ -133,7 +133,7 @@ abstract class Resource extends ResourceIdentifier
 
         foreach ($this->to_many_relationships as $name => $relationship) {
             $encoded = $relationship->encodeIdentifier();
-            if ($encoded !== []) {
+            if ($encoded['data'] !== []) {
                 $relationships[$name] = $encoded;
             }
         }

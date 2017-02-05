@@ -112,12 +112,13 @@ class ResourceCollection implements ResourceStoreAccess, \Countable, \Serializab
 
     public function encodeIdentifier()
     {
-        $data = [];
+        $data = [ 'data' => [] ];
 
         // Don't use the object itself to get the iterator.
         // Prevents lazy loading.
         foreach ($this->collection as $resource) {
-            $data[] = $resource->encodeIdentifier();
+            $sub_data = $resource->encodeIdentifier();
+            $data['data'][] = $sub_data['data'];
         }
 
         return $data;
