@@ -28,6 +28,8 @@ class ResourceStore
 
     protected $resources = [];
 
+    protected $disable_to_many_replace = false;
+
     // }}}
     // {{{ public function __construct()
 
@@ -227,7 +229,16 @@ class ResourceStore
 
     public function save(Resource $resource)
     {
-        $method = ($resource->getId() == '') ? 'POST' : 'PATCH';
+        $method = 'POST';
+        $json = $resource->encode();
+
+        if ($resource->getId() != '') {
+            $method = 'PATCH';
+
+            if ($this->disable_to_many_replace) {
+                $json = $this->removeToManyRelationships($json);
+            }
+        }
 
         $body = $this->doRequest(
             $method,
@@ -235,7 +246,7 @@ class ResourceStore
                 $resource->getType(),
                 $resource->getId()
             ),
-            ['json' => $resource->encode()]
+            ['json' => $json]
         );
 
         if (!isset($body['data'])) {
@@ -284,6 +295,22 @@ class ResourceStore
         $resource->setStore($this);
 
         return $resource;
+    }
+
+    // }}}
+    // {{{ public function enableToManyReplace()
+
+    public function enableToManyReplace()
+    {
+        $this->disable_to_many_replace = false;
+    }
+
+    // }}}
+    // {{{ public function disableToManyReplace()
+
+    public function disableToManyReplace()
+    {
+        $this->disable_to_many_replace = true;
     }
 
     // }}}
@@ -413,6 +440,25 @@ class ResourceStore
         }
 
         throw new ResourceErrorException('Unknown error.', 0, []);
+    }
+
+    // }}}
+    // {{{ protected function removeToManyRelationships()
+
+    protected function removeToManyRelationships(array $json)
+    {
+        $to_many_keys = [];
+        foreach ($json['data']['relationships'] as $key => $data) {
+            if (!isset($data['data']['id'])) {
+                $to_many_keys[] = $key;
+            }
+        }
+
+        foreach ($to_many_keys as $to_many_key) {
+            unset($json['data']['relationships'][$to_many_key]);
+        }
+
+        return $json;
     }
 
     // }}}
