@@ -143,6 +143,20 @@ class ResourceCollection implements ResourceStoreAccess, \Countable, \Serializab
     }
 
     // }}}
+    // {{{ public function save()
+
+    public function save()
+    {
+        // Don't use the object itself to get the iterator. Prevents lazy
+        // loading.
+        foreach ($this->collection as $resource) {
+            if ($resource instanceof Resource && $resource->isDirty()) {
+                $resource->save();
+            }
+        }
+    }
+
+    // }}}
     // {{{ protected function checkStore()
 
     protected function checkStore()

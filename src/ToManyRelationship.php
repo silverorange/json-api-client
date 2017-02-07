@@ -82,7 +82,9 @@ class ToManyRelationship implements ResourceStoreAccess
 
     public function save()
     {
-        // TODO: Add saving for to many relationship
+        if ($this->resource_collection instanceof ResourceCollection) {
+            $this->resource_collection->save();
+        }
     }
 
     // }}}
