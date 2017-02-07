@@ -150,10 +150,26 @@ class ResourceCollection implements ResourceStoreAccess, \Countable, \Serializab
         // Don't use the object itself to get the iterator. Prevents lazy
         // loading.
         foreach ($this->collection as $resource) {
-            if ($resource instanceof Resource && $resource->isDirty()) {
+            if ($resource instanceof Resource) {
                 $resource->save();
             }
         }
+    }
+
+    // }}}
+    // {{{ public function isModified()
+
+    public function isModified()
+    {
+        $is_modified = false;
+
+        foreach ($this->collection as $resource) {
+            if ($resource instanceof Resource) {
+                $is_modified = $is_modified || $resource->isModified();
+            }
+        }
+
+        return $is_modified;
     }
 
     // }}}

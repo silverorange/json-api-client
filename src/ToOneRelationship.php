@@ -78,9 +78,23 @@ class ToOneRelationship implements ResourceStoreAccess
 
     public function save()
     {
-        if ($this->resource instanceof Resource && $this->resource->isDirty()) {
+        if ($this->resource instanceof Resource) {
             $this->resource->save();
         }
+    }
+
+    // }}}
+    // {{{ public function isModified()
+
+    public function isModified()
+    {
+        $is_modified = false;
+
+        if ($this->resource instanceof Resource) {
+            $is_modified = $this->resource->isModified();
+        }
+
+        return $is_modified;
     }
 
     // }}}

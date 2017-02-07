@@ -88,4 +88,18 @@ class ToManyRelationship implements ResourceStoreAccess
     }
 
     // }}}
+    // {{{ public function isModified()
+
+    public function isModified()
+    {
+        $is_modified = false;
+
+        if ($this->resource_collection instanceof ResourceCollection) {
+            $is_modified = $this->resource_collection->isModified();
+        }
+
+        return $is_modified;
+    }
+
+    // }}}
 }

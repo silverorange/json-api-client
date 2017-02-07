@@ -23,7 +23,7 @@ abstract class Resource extends ResourceIdentifier
     protected $to_one_relationships = [];
     protected $to_many_relationships = [];
     protected $fetched_date = null;
-    protected $is_modified = false;
+    protected $is_modified = true;
 
     // }}}
     // {{{ public function __construct()
@@ -172,8 +172,6 @@ abstract class Resource extends ResourceIdentifier
         $this->checkStore();
         $this->validateData($data);
  
-        $this->is_modified = false;
-
         $this->id = $data['id'];
 
         if (array_key_exists('attributes', $data)) {
@@ -223,6 +221,8 @@ abstract class Resource extends ResourceIdentifier
                 }
             }
         }
+
+        $this->is_modified = false;
     }
 
     // }}}
@@ -232,15 +232,25 @@ abstract class Resource extends ResourceIdentifier
     {
         $this->checkStore();
 
+        $is_modified = $this->isModified();
+
         foreach ($this->to_one_relationships as $relationship) {
+            $is_modified = $is_modified || $relationship->isModified();
+
             $relationship->save();
         }
 
         foreach ($this->to_many_relationships as $relationship) {
+            $is_modified = $is_modified || $relationship->isModified();
+
             $relationship->save();
         }
 
-        $this->store->save($this);
+        if ($is_modified) {
+            $this->store->save($this);
+
+            $this->is_modified = false;
+        }
     }
 
     // }}}
@@ -258,15 +268,7 @@ abstract class Resource extends ResourceIdentifier
 
     public function isModified()
     {
-        return $this->is_modified;
-    }
-
-    // }}}
-    // {{{ public function isDirty()
-
-    public function isDirty()
-    {
-        return (!$this->isSaved() || $this->isModified());
+        return ($this->is_modified || !$this->isSaved());
     }
 
     // }}}
