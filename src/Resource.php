@@ -523,6 +523,7 @@ abstract class Resource extends ResourceIdentifier
             'to_one_relationships' => $this->to_one_relationships,
             'to_many_relationships' => $this->to_many_relationships,
             'fetched_date' => $this->fetched_date,
+            'is_modified' => $this->is_modified,
         ]);
     }
 
@@ -539,6 +540,7 @@ abstract class Resource extends ResourceIdentifier
         $this->to_one_relationships = $data['to_one_relationships'];
         $this->to_many_relationships = $data['to_many_relationships'];
         $this->fetched_date = $data['fetched_date'];
+        $this->is_modified = $data['is_modified'];
     }
 
     // }}}
