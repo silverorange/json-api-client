@@ -40,7 +40,7 @@ class ResourceCollection implements ResourceStoreAccess, \Countable, \Serializab
     // }}}
     // {{{ public function add()
 
-    public function add(ResourceIdentifier $resource)
+    public function add(AbstractResource $resource)
     {
         if ($resource->getType() !== $this->type) {
             throw new InvalidResourceTypeException(
@@ -68,7 +68,7 @@ class ResourceCollection implements ResourceStoreAccess, \Countable, \Serializab
         }
 
         $resource = $this->collection[$id];
-        if (get_class($resource) === ResourceIdentifier::class) {
+        if ($resource instanceof ResourceIdentifier) {
             $this->add($resource->getResource());
         }
 
