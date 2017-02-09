@@ -74,7 +74,7 @@ class ToManyRelationship implements ResourceStoreAccess
             return $this->resource_collection->encodeIdentifier();
         }
 
-        return [];
+        return [ 'data' => [] ];
     }
 
     // }}}
