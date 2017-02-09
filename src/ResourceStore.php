@@ -229,16 +229,11 @@ class ResourceStore
 
     public function save(Resource $resource)
     {
-        $method = 'POST';
-        $json = $resource->encode();
-
-        if ($resource->getId() != '') {
-            $method = 'PATCH';
-
-            if (!$this->is_to_many_replace_enabled) {
-                $json = $this->removeToManyRelationships($json);
-            }
-        }
+        $method = ($resource->getId()) ? 'PATCH' : 'POST';
+        $options = [
+            'is_to_many_replace_enabled' => $this->is_to_many_replace_enabled,
+        ];
+        $json = $resource->encode($options);
 
         $body = $this->doRequest(
             $method,

@@ -120,21 +120,28 @@ abstract class Resource extends ResourceIdentifier
     // }}}
     // {{{ public function encode()
 
-    public function encode()
+    public function encode(array $options = [])
     {
+        $is_to_many_replace_enabled = (
+            !isset($options['to_many_replace_enabled']) ||
+            $options['to_many_replace_enabled']
+        );
+
         $relationships = [];
 
         foreach ($this->to_one_relationships as $name => $relationship) {
-            $encoded = $relationship->encodeIdentifier();
+            $encoded = $relationship->encodeIdentifier($options);
             if ($encoded['data'] !== null) {
                 $relationships[$name] = $encoded;
             }
         }
 
-        foreach ($this->to_many_relationships as $name => $relationship) {
-            $encoded = $relationship->encodeIdentifier();
-            if ($encoded['data'] !== []) {
-                $relationships[$name] = $encoded;
+        if ($is_to_many_replace_enabled) {
+            foreach ($this->to_many_relationships as $name => $relationship) {
+                $encoded = $relationship->encodeIdentifier($options);
+                if ($encoded['data'] !== []) {
+                    $relationships[$name] = $encoded;
+                }
             }
         }
 
