@@ -232,7 +232,7 @@ class ResourceStore
         $method = 'POST';
         $options = [];
 
-        // Check if we are Updating an existing resource.
+        // Check if we are updating an existing resource.
         if ($resource->isSaved()) {
             $method = 'PATCH';
             $options['is_to_many_replace_enabled'] = $this->is_to_many_replace_enabled;
