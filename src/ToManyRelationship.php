@@ -68,10 +68,10 @@ class ToManyRelationship implements ResourceStoreAccess
     // }}}
     // {{{ public function encodeIdentifier()
 
-    public function encodeIdentifier()
+    public function encodeIdentifier(array $options = [])
     {
         if ($this->resource_collection instanceof ResourceCollection) {
-            return $this->resource_collection->encodeIdentifier();
+            return $this->resource_collection->encodeIdentifier($options);
         }
 
         return [ 'data' => [] ];

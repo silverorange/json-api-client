@@ -28,6 +28,8 @@ class ResourceStore
 
     protected $resources = [];
 
+    protected $is_to_many_replace_enabled = true;
+
     // }}}
     // {{{ public function __construct()
 
@@ -227,7 +229,15 @@ class ResourceStore
 
     public function save(Resource $resource)
     {
-        $method = ($resource->getId() == '') ? 'POST' : 'PATCH';
+        $method = 'POST';
+        $options = [];
+
+        // Check if we are updating an existing resource.
+        if ($resource->isSaved()) {
+            $method = 'PATCH';
+            $options['is_to_many_replace_enabled'] = $this->is_to_many_replace_enabled;
+        }
+
 
         $body = $this->doRequest(
             $method,
@@ -235,7 +245,7 @@ class ResourceStore
                 $resource->getType(),
                 $resource->getId()
             ),
-            ['json' => $resource->encode()]
+            ['json' => $resource->encode($options)]
         );
 
         if (!isset($body['data'])) {
@@ -258,7 +268,7 @@ class ResourceStore
 
     // }}}
     // {{{ public function delete()
-    
+
     public function delete(Resource $resource)
     {
         if ($resource->isSaved()) {
@@ -284,6 +294,22 @@ class ResourceStore
         $resource->setStore($this);
 
         return $resource;
+    }
+
+    // }}}
+    // {{{ public function enableToManyReplace()
+
+    public function enableToManyReplace()
+    {
+        $this->is_to_many_replace_enabled = false;
+    }
+
+    // }}}
+    // {{{ public function disableToManyReplace()
+
+    public function disableToManyReplace()
+    {
+        $this->is_to_many_replace_enabled = false;
     }
 
     // }}}
