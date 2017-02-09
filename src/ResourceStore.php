@@ -28,7 +28,7 @@ class ResourceStore
 
     protected $resources = [];
 
-    protected $disable_to_many_replace = false;
+    protected $is_to_many_replace_enabled = true;
 
     // }}}
     // {{{ public function __construct()
@@ -235,7 +235,7 @@ class ResourceStore
         if ($resource->getId() != '') {
             $method = 'PATCH';
 
-            if ($this->disable_to_many_replace) {
+            if (!$this->is_to_many_replace_enabled) {
                 $json = $this->removeToManyRelationships($json);
             }
         }
@@ -269,7 +269,7 @@ class ResourceStore
 
     // }}}
     // {{{ public function delete()
-    
+
     public function delete(Resource $resource)
     {
         if ($resource->isSaved()) {
@@ -302,7 +302,7 @@ class ResourceStore
 
     public function enableToManyReplace()
     {
-        $this->disable_to_many_replace = false;
+        $this->is_to_many_replace_enabled = false;
     }
 
     // }}}
@@ -310,7 +310,7 @@ class ResourceStore
 
     public function disableToManyReplace()
     {
-        $this->disable_to_many_replace = true;
+        $this->is_to_many_replace_enabled = false;
     }
 
     // }}}
