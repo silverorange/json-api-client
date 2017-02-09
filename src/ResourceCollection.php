@@ -164,8 +164,9 @@ class ResourceCollection implements ResourceStoreAccess, \Countable, \Serializab
         $is_modified = false;
 
         foreach ($this->collection as $resource) {
-            if ($resource instanceof Resource) {
-                $is_modified = $is_modified || $resource->isModified();
+            if ($resource instanceof Resource && $resource->isModified()) {
+                $is_modified = true;
+                break;
             }
         }
 
