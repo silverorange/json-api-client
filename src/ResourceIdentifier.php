@@ -4,9 +4,6 @@
 
 namespace silverorange\JsonApiClient;
 
-use silverorange\JsonApiClient\Exception\InvalidDataException;
-use silverorange\JsonApiClient\Exception\NoResourceStoreException;
-
 class ResourceIdentifier extends AbstractResource
 {
     // {{{ public function encode()
