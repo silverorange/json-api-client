@@ -238,7 +238,6 @@ class ResourceStore
             $options['is_to_many_replace_enabled'] = $this->is_to_many_replace_enabled;
         }
 
-        $json = $resource->encode($options);
 
         $body = $this->doRequest(
             $method,
@@ -246,7 +245,7 @@ class ResourceStore
                 $resource->getType(),
                 $resource->getId()
             ),
-            ['json' => $json]
+            ['json' => $resource->encode($options)]
         );
 
         if (!isset($body['data'])) {
