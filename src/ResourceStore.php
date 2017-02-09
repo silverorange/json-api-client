@@ -438,25 +438,6 @@ class ResourceStore
     }
 
     // }}}
-    // {{{ protected function removeToManyRelationships()
-
-    protected function removeToManyRelationships(array $json)
-    {
-        $to_many_keys = [];
-        foreach ($json['data']['relationships'] as $key => $data) {
-            if (!isset($data['data']['id'])) {
-                $to_many_keys[] = $key;
-            }
-        }
-
-        foreach ($to_many_keys as $to_many_key) {
-            unset($json['data']['relationships'][$to_many_key]);
-        }
-
-        return $json;
-    }
-
-    // }}}
 
     // class methods
     // {{{ public function addClass()
