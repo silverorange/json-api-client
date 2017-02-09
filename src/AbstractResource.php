@@ -54,11 +54,6 @@ abstract class AbstractResource implements ResourceStoreAccess, \Serializable
     }
 
     // }}}
-    // {{{ abstract public function encode()
-
-    abstract public function encode();
-
-    // }}}
     // {{{ public function encodeIdentifier()
 
     public function encodeIdentifier()
@@ -70,6 +65,11 @@ abstract class AbstractResource implements ResourceStoreAccess, \Serializable
             ]
         ];
     }
+
+    // }}}
+    // {{{ abstract public function encode()
+
+    abstract public function encode();
 
     // }}}
     // {{{ abstract public function decode()
