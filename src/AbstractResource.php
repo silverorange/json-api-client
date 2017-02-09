@@ -56,7 +56,7 @@ abstract class AbstractResource implements ResourceStoreAccess, \Serializable
     // }}}
     // {{{ public function encodeIdentifier()
 
-    public function encodeIdentifier()
+    public function encodeIdentifier(array $options = [])
     {
         return [
             'data' => [
@@ -69,7 +69,7 @@ abstract class AbstractResource implements ResourceStoreAccess, \Serializable
     // }}}
     // {{{ abstract public function encode()
 
-    abstract public function encode();
+    abstract public function encode(array $options = []);
 
     // }}}
     // {{{ abstract public function decode()
