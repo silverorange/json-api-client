@@ -229,10 +229,15 @@ class ResourceStore
 
     public function save(Resource $resource)
     {
-        $method = ($resource->getId()) ? 'PATCH' : 'POST';
-        $options = [
-            'is_to_many_replace_enabled' => $this->is_to_many_replace_enabled,
-        ];
+        $method = 'POST';
+        $options = [];
+
+        // Check if we are Updating an existing resource.
+        if (!$resource->getId()) {
+            $method = 'PATCH';
+            $options['is_to_many_replace_enabled'] = $this->is_to_many_replace_enabled;
+        }
+
         $json = $resource->encode($options);
 
         $body = $this->doRequest(
