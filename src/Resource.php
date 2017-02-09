@@ -171,7 +171,7 @@ abstract class Resource extends ResourceIdentifier
     {
         $this->checkStore();
         $this->validateData($data);
- 
+
         $this->id = $data['id'];
 
         if (array_key_exists('attributes', $data)) {
