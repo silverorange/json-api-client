@@ -46,7 +46,7 @@ class ToOneRelationship implements ResourceStoreAccess
     // }}}
     // {{{ public function set()
 
-    public function set(ResourceIdentifier $resource)
+    public function set(AbstractResource $resource)
     {
         if ($this->type !== $resource->getType()) {
             throw new InvalidResourceTypeException(
@@ -66,8 +66,8 @@ class ToOneRelationship implements ResourceStoreAccess
 
     public function encodeIdentifier(array $options = [])
     {
-        if ($this->resource instanceof ResourceIdentifier) {
-            return $this->resource->encodeIdentifier($options);
+        if ($this->resource instanceof AbstractResource) {
+            return $this->resource->encodeIdentifier();
         }
 
         return [ 'data' => null ];
