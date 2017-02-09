@@ -56,15 +56,15 @@ class ResourceIdentifier implements ResourceStoreAccess, \Serializable
     // }}}
     // {{{ public function encode()
 
-    public function encode()
+    public function encode(array $options = [])
     {
-        return $this->encodeIndentifier();
+        return $this->encodeIndentifier($options);
     }
 
     // }}}
     // {{{ public function encodeIdentifier()
 
-    public function encodeIdentifier()
+    public function encodeIdentifier(array $options = [])
     {
         return [
             'data' => [

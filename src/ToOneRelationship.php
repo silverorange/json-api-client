@@ -64,10 +64,10 @@ class ToOneRelationship implements ResourceStoreAccess
     // }}}
     // {{{ public function encodeIdentifier()
 
-    public function encodeIdentifier()
+    public function encodeIdentifier(array $options = [])
     {
         if ($this->resource instanceof ResourceIdentifier) {
-            return $this->resource->encodeIdentifier();
+            return $this->resource->encodeIdentifier($options);
         }
 
         return [ 'data' => null ];

@@ -94,14 +94,14 @@ class ResourceCollection implements ResourceStoreAccess, \Countable, \Serializab
     // }}}
     // {{{ public function encode()
 
-    public function encode()
+    public function encode(array $options = [])
     {
         $data = [];
 
         // Don't use the object itself to get the interator.
         // Prevents lazy loading.
         foreach ($this->collection as $resource) {
-            $data[] = $resource->encode();
+            $data[] = $resource->encode($options);
         }
 
         return $data;
@@ -110,14 +110,14 @@ class ResourceCollection implements ResourceStoreAccess, \Countable, \Serializab
     // }}}
     // {{{ public function encodeIdentifier()
 
-    public function encodeIdentifier()
+    public function encodeIdentifier(array $options = [])
     {
         $data = [ 'data' => [] ];
 
         // Don't use the object itself to get the iterator.
         // Prevents lazy loading.
         foreach ($this->collection as $resource) {
-            $sub_data = $resource->encodeIdentifier();
+            $sub_data = $resource->encodeIdentifier($options);
             $data['data'][] = $sub_data['data'];
         }
 

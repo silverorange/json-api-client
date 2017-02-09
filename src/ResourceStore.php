@@ -28,7 +28,7 @@ class ResourceStore
 
     protected $resources = [];
 
-    protected $disable_to_many_replace = false;
+    protected $is_to_many_replace_enabled = true;
 
     // }}}
     // {{{ public function __construct()
@@ -230,15 +230,14 @@ class ResourceStore
     public function save(Resource $resource)
     {
         $method = 'POST';
-        $json = $resource->encode();
+        $options = [];
 
-        if ($resource->getId() != '') {
+        // Check if we are updating an existing resource.
+        if ($resource->isSaved()) {
             $method = 'PATCH';
-
-            if ($this->disable_to_many_replace) {
-                $json = $this->removeToManyRelationships($json);
-            }
+            $options['is_to_many_replace_enabled'] = $this->is_to_many_replace_enabled;
         }
+
 
         $body = $this->doRequest(
             $method,
@@ -246,7 +245,7 @@ class ResourceStore
                 $resource->getType(),
                 $resource->getId()
             ),
-            ['json' => $json]
+            ['json' => $resource->encode($options)]
         );
 
         if (!isset($body['data'])) {
@@ -269,7 +268,7 @@ class ResourceStore
 
     // }}}
     // {{{ public function delete()
-    
+
     public function delete(Resource $resource)
     {
         if ($resource->isSaved()) {
@@ -302,7 +301,7 @@ class ResourceStore
 
     public function enableToManyReplace()
     {
-        $this->disable_to_many_replace = false;
+        $this->is_to_many_replace_enabled = false;
     }
 
     // }}}
@@ -310,7 +309,7 @@ class ResourceStore
 
     public function disableToManyReplace()
     {
-        $this->disable_to_many_replace = true;
+        $this->is_to_many_replace_enabled = false;
     }
 
     // }}}
@@ -440,25 +439,6 @@ class ResourceStore
         }
 
         throw new ResourceErrorException('Unknown error.', 0, []);
-    }
-
-    // }}}
-    // {{{ protected function removeToManyRelationships()
-
-    protected function removeToManyRelationships(array $json)
-    {
-        $to_many_keys = [];
-        foreach ($json['data']['relationships'] as $key => $data) {
-            if (!isset($data['data']['id'])) {
-                $to_many_keys[] = $key;
-            }
-        }
-
-        foreach ($to_many_keys as $to_many_key) {
-            unset($json['data']['relationships'][$to_many_key]);
-        }
-
-        return $json;
     }
 
     // }}}
