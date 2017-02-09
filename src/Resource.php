@@ -23,6 +23,7 @@ abstract class Resource extends AbstractResource
     protected $to_one_relationships = [];
     protected $to_many_relationships = [];
     protected $fetched_date = null;
+    protected $is_modified = true;
 
     // }}}
     // {{{ public function __construct()
@@ -227,6 +228,8 @@ abstract class Resource extends AbstractResource
                 }
             }
         }
+
+        $this->is_modified = false;
     }
 
     // }}}
@@ -236,7 +239,25 @@ abstract class Resource extends AbstractResource
     {
         $this->checkStore();
 
-        return $this->store->save($this);
+        $is_modified = $this->isModified();
+
+        foreach ($this->to_one_relationships as $relationship) {
+            $is_modified = $is_modified || $relationship->isModified();
+
+            $relationship->save();
+        }
+
+        foreach ($this->to_many_relationships as $relationship) {
+            $is_modified = $is_modified || $relationship->isModified();
+
+            $relationship->save();
+        }
+
+        if ($is_modified) {
+            $this->store->save($this);
+
+            $this->is_modified = false;
+        }
     }
 
     // }}}
@@ -247,6 +268,14 @@ abstract class Resource extends AbstractResource
         $this->checkStore();
 
         $this->store->delete($this);
+    }
+
+    // }}}
+    // {{{ public function isModified()
+
+    public function isModified()
+    {
+        return ($this->is_modified || !$this->isSaved());
     }
 
     // }}}
@@ -283,6 +312,8 @@ abstract class Resource extends AbstractResource
     protected function setAttribute($name, $value)
     {
         if ($this->hasAttribute($name)) {
+            $this->is_modified = true;
+
             if ($this->attributes_types[$name] === self::TYPE_DATE &&
                 is_string($value)) {
                 $value = new \DateTime($value);
@@ -395,6 +426,8 @@ abstract class Resource extends AbstractResource
     protected function setToOneRelationship($name, Resource $value)
     {
         if ($this->hasToOneRelationship($name)) {
+            $this->is_modified = true;
+
             $this->getToOneRelationship($name)->set($value);
         } else {
             throw new InvalidPropertyException(
@@ -413,6 +446,8 @@ abstract class Resource extends AbstractResource
     protected function setToManyRelationship($name, ResourceCollection $value)
     {
         if ($this->hasToManyRelationship($name)) {
+            $this->is_modified = true;
+
             $this->getToManyRelationship($name)->set($value);
         } else {
             throw new InvalidPropertyException(
@@ -497,6 +532,7 @@ abstract class Resource extends AbstractResource
             'to_one_relationships' => $this->to_one_relationships,
             'to_many_relationships' => $this->to_many_relationships,
             'fetched_date' => $this->fetched_date,
+            'is_modified' => $this->is_modified,
         ]);
     }
 
@@ -513,6 +549,7 @@ abstract class Resource extends AbstractResource
         $this->to_one_relationships = $data['to_one_relationships'];
         $this->to_many_relationships = $data['to_many_relationships'];
         $this->fetched_date = $data['fetched_date'];
+        $this->is_modified = $data['is_modified'];
     }
 
     // }}}
