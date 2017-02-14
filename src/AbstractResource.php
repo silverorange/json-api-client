@@ -9,14 +9,10 @@ use silverorange\JsonApiClient\Exception\NoResourceStoreException;
 
 abstract class AbstractResource implements ResourceStoreAccess, \Serializable
 {
-    // {{{ private properties
-
-    private $type = null;
-
-    // }}}
     // {{{ protected properties
 
     protected $id = null;
+    protected $type = null;
     protected $store = null;
 
     // }}}
