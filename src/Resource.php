@@ -525,7 +525,6 @@ abstract class Resource extends AbstractResource
     public function serialize()
     {
         return serialize([
-            'type' => $this->getType(),
             'id' => $this->id,
             'attributes' => $this->attributes,
             'attributes_types' => $this->attributes_types,

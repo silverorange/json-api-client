@@ -6,6 +6,19 @@ namespace silverorange\JsonApiClient;
 
 class ResourceIdentifier extends AbstractResource
 {
+    // {{{ protected properties
+
+    protected $type = null;
+
+    // }}}
+    // {{{ public function getType()
+
+    public function getType()
+    {
+        return $this->type;
+    }
+
+    // }}}
     // {{{ public function encode()
 
     public function encode(array $options = [])

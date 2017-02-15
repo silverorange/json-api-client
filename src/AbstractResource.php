@@ -24,14 +24,6 @@ abstract class AbstractResource implements ResourceStoreAccess, \Serializable
     }
 
     // }}}
-    // {{{ public function getType()
-
-    public function getType()
-    {
-        return $this->type;
-    }
-
-    // }}}
     // {{{ public function getId()
 
     public function getId()
@@ -61,6 +53,11 @@ abstract class AbstractResource implements ResourceStoreAccess, \Serializable
             ]
         ];
     }
+
+    // }}}
+    // {{{ abstract public function getType()
+
+    abstract public function getType();
 
     // }}}
     // {{{ abstract public function encode()
