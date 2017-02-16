@@ -124,8 +124,8 @@ abstract class Resource extends AbstractResource
     public function encode(array $options = [])
     {
         $is_to_many_replace_enabled = (
-            !isset($options['to_many_replace_enabled']) ||
-            $options['to_many_replace_enabled']
+            !isset($options['is_to_many_replace_enabled']) ||
+            $options['is_to_many_replace_enabled']
         );
 
         $relationships = [];
