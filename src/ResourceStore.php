@@ -238,7 +238,6 @@ class ResourceStore
             $options['is_to_many_replace_enabled'] = $this->is_to_many_replace_enabled;
         }
 
-
         $body = $this->doRequest(
             $method,
             $this->getResourceAddress(
@@ -301,7 +300,7 @@ class ResourceStore
 
     public function enableToManyReplace()
     {
-        $this->is_to_many_replace_enabled = false;
+        $this->is_to_many_replace_enabled = true;
     }
 
     // }}}
