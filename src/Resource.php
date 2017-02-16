@@ -60,7 +60,8 @@ abstract class Resource extends AbstractResource
     public function setFetchedDate($fetched_date)
     {
         if (is_string($fetched_date)) {
-            $this->fetched_date = new \DateTime($fetched_date);
+            $class = $this->getDateClass();
+            $this->fetched_date = new $class($fetched_date);
         }
     }
 
@@ -149,7 +150,8 @@ abstract class Resource extends AbstractResource
         $attributes = [];
 
         foreach ($this->attributes as $name => $value) {
-            if ($value instanceof \DateTime) {
+            $date_class = $this->getDateClass();
+            if ($value instanceof $date_class) {
                 $value = $value->format('c');
             }
 
@@ -316,7 +318,8 @@ abstract class Resource extends AbstractResource
 
             if ($this->attributes_types[$name] === self::TYPE_DATE &&
                 is_string($value)) {
-                $value = new \DateTime($value);
+                $class = $this->getDateClass();
+                $value = new $class($value);
             }
 
             $this->attributes[$name] = $value;
@@ -362,6 +365,14 @@ abstract class Resource extends AbstractResource
     // {{{ abstract protected function initAttributes()
 
     abstract protected function initAttributes();
+
+    // }}}
+    // {{{ protected function getDateClass
+
+    protected function getDateClass()
+    {
+        return \DateTime::class;
+    }
 
     // }}}
     // {{{ public function isSaved()
