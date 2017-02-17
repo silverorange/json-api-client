@@ -60,7 +60,7 @@ abstract class Resource extends AbstractResource
     public function setFetchedDate($fetched_date)
     {
         if (is_string($fetched_date)) {
-            $this->fetched_date = new \DateTime($fetched_date);
+            $this->fetched_date = $this->decodeDate($fetched_date);
         }
     }
 
@@ -297,6 +297,14 @@ abstract class Resource extends AbstractResource
     }
 
     // }}}
+    // {{{ protected function decodeDate()
+
+    protected function decodeDate($date_string)
+    {
+        return new \DateTime((string)$date_string);
+    }
+
+    // }}}
 
     // Attribute methods
     // {{{ protected function hasAttribute()
@@ -316,7 +324,7 @@ abstract class Resource extends AbstractResource
 
             if ($this->attributes_types[$name] === self::TYPE_DATE &&
                 is_string($value)) {
-                $value = new \DateTime($value);
+                $value = $this->decodeDate($value);
             }
 
             $this->attributes[$name] = $value;
