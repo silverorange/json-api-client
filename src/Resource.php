@@ -15,6 +15,9 @@ abstract class Resource extends AbstractResource
     const TYPE_NUMBER = 1;
     const TYPE_DATE = 2;
 
+    const AUTO_SAVE_ON = true;
+    const AUTO_SAVE_OFF = false;
+
     // }}}
     // {{{ protected properties
 
@@ -22,6 +25,7 @@ abstract class Resource extends AbstractResource
     protected $attributes_types = [];
     protected $to_one_relationships = [];
     protected $to_many_relationships = [];
+    protected $auto_save_relationships = [];
     protected $fetched_date = null;
     protected $is_modified = true;
 
@@ -242,20 +246,21 @@ abstract class Resource extends AbstractResource
         $is_modified = $this->isModified();
 
         foreach ($this->to_one_relationships as $relationship) {
-            $is_modified = $is_modified || $relationship->isModified();
-
-            $relationship->save();
+            if ($this->auto_save_relationships[$relationship] === self::AUTO_SAVE_ON) {
+                $is_modified = $is_modified || $relationship->isModified();
+                $relationship->save();
+            }
         }
 
         foreach ($this->to_many_relationships as $relationship) {
-            $is_modified = $is_modified || $relationship->isModified();
-
-            $relationship->save();
+            if ($this->auto_save_relationships[$relationship] === self::AUTO_SAVE_ON) {
+                $is_modified = $is_modified || $relationship->isModified();
+                $relationship->save();
+            }
         }
 
         if ($is_modified) {
             $this->store->save($this);
-
             $this->is_modified = false;
         }
     }
@@ -507,17 +512,25 @@ abstract class Resource extends AbstractResource
     // }}}
     // {{{ protected function initToOneRelationship()
 
-    protected function initToOneRelationship($name, $type)
-    {
+    protected function initToOneRelationship(
+        $name,
+        $type,
+        $auto_save = self::AUTO_SAVE_OFF
+    ) {
         $this->to_one_relationships[$name] = new ToOneRelationship($type);
+        $this->relationship_auto_save[$name] = $auto_save;
     }
 
     // }}}
     // {{{ protected function initToManyRelationship()
 
-    protected function initToManyRelationship($name, $type)
-    {
+    protected function initToManyRelationship(
+        $name,
+        $type,
+        $auto_save = self::AUTO_SAVE_OFF
+    ) {
         $this->to_many_relationships[$name] = new ToManyRelationship($type);
+        $this->relationship_auto_save[$name] = $auto_save;
     }
 
     // }}}
@@ -538,6 +551,7 @@ abstract class Resource extends AbstractResource
             'attributes_types' => $this->attributes_types,
             'to_one_relationships' => $this->to_one_relationships,
             'to_many_relationships' => $this->to_many_relationships,
+            'auto_save_relationships' => $this->auto_save_relationships,
             'fetched_date' => $this->fetched_date,
             'is_modified' => $this->is_modified,
         ]);
@@ -555,6 +569,7 @@ abstract class Resource extends AbstractResource
         $this->attributes_types = $data['attributes_types'];
         $this->to_one_relationships = $data['to_one_relationships'];
         $this->to_many_relationships = $data['to_many_relationships'];
+        $this->auto_save_relationships = $data['auto_save_relationships'];
         $this->fetched_date = $data['fetched_date'];
         $this->is_modified = $data['is_modified'];
     }
