@@ -245,15 +245,15 @@ abstract class Resource extends AbstractResource
 
         $is_modified = $this->isModified();
 
-        foreach ($this->to_one_relationships as $relationship) {
-            if ($this->auto_save_relationships[$relationship] === self::AUTO_SAVE_ON) {
+        foreach ($this->to_one_relationships as $name => $relationship) {
+            if ($this->auto_save_relationships[$name] === self::AUTO_SAVE_ON) {
                 $is_modified = $is_modified || $relationship->isModified();
                 $relationship->save();
             }
         }
 
-        foreach ($this->to_many_relationships as $relationship) {
-            if ($this->auto_save_relationships[$relationship] === self::AUTO_SAVE_ON) {
+        foreach ($this->to_many_relationships as $name => $relationship) {
+            if ($this->auto_save_relationships[$name] === self::AUTO_SAVE_ON) {
                 $is_modified = $is_modified || $relationship->isModified();
                 $relationship->save();
             }
