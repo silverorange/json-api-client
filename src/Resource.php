@@ -115,7 +115,7 @@ abstract class Resource extends AbstractResource
             throw new InvalidPropertyException(
                 sprintf(
                     'Unable to set property “%s” on resource type “%s”',
-                    $key,
+                    $name,
                     $this->getType()
                 )
             );
