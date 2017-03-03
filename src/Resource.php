@@ -518,7 +518,7 @@ abstract class Resource extends AbstractResource
         $auto_save = self::AUTO_SAVE_OFF
     ) {
         $this->to_one_relationships[$name] = new ToOneRelationship($type);
-        $this->relationship_auto_save[$name] = $auto_save;
+        $this->auto_save_relationships[$name] = $auto_save;
     }
 
     // }}}
@@ -530,7 +530,7 @@ abstract class Resource extends AbstractResource
         $auto_save = self::AUTO_SAVE_OFF
     ) {
         $this->to_many_relationships[$name] = new ToManyRelationship($type);
-        $this->relationship_auto_save[$name] = $auto_save;
+        $this->auto_save_relationships[$name] = $auto_save;
     }
 
     // }}}
