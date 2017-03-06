@@ -43,17 +43,20 @@ abstract class Resource extends AbstractResource
 
     public function setStore(ResourceStore $store)
     {
-        parent::setStore($store);
+        // Prevent never ending recursion if the store is already set
+        if (!$this->store instanceof ResourceStore) {
+            parent::setStore($store);
 
-        foreach ($this->to_one_relationships as $key => $relationship) {
-            if ($relationship instanceof ResourceStoreAccess) {
-                $relationship->setStore($store);
+            foreach ($this->to_one_relationships as $key => $relationship) {
+                if ($relationship instanceof ResourceStoreAccess) {
+                    $relationship->setStore($store);
+                }
             }
-        }
 
-        foreach ($this->to_many_relationships as $key => $relationship) {
-            if ($relationship instanceof ResourceStoreAccess) {
-                $relationship->setStore($store);
+            foreach ($this->to_many_relationships as $key => $relationship) {
+                if ($relationship instanceof ResourceStoreAccess) {
+                    $relationship->setStore($store);
+                }
             }
         }
     }
