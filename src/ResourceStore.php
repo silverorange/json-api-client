@@ -124,6 +124,10 @@ class ResourceStore
      */
     public function find($type, $id, array $query_params = [])
     {
+        if ($id === null) {
+            throw new \InvalidArgumentException('Id can not be null.');
+        }
+
         $resource = $this->peek($type, $id);
 
         if (!$resource instanceof Resource) {
@@ -148,6 +152,10 @@ class ResourceStore
      */
     public function query($type, $id, array $query_params = [])
     {
+        if ($id === null) {
+            throw new \InvalidArgumentException('Id can not be null.');
+        }
+
         $resource = null;
 
         try {
@@ -215,6 +223,10 @@ class ResourceStore
      */
     public function peek($type, $id)
     {
+        if ($id === null) {
+            throw new \InvalidArgumentException('Id can not be null.');
+        }
+
         $resource = null;
 
         if ($this->hasResource($type, $id)) {
