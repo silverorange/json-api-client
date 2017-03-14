@@ -12,6 +12,7 @@ class ToOneRelationship implements ResourceStoreAccess
 
     protected $resource = null;
     protected $type = null;
+    protected $is_modified = false;
 
     // }}}
     // {{{ public function __construct()
@@ -60,7 +61,19 @@ class ToOneRelationship implements ResourceStoreAccess
             );
         }
 
-        $this->resource = $resource;
+        $old_resource_id = ($this->resource instanceof AbstractResource)
+            ? $this->resource->getId()
+            : null;
+
+        $new_resource_id = ($resource instanceof AbstractResource)
+            ? $resource->getId()
+            : null;
+
+
+        if ($old_resource_id !== $new_resource_id) {
+            $this->is_modified = true;
+            $this->resource = $resource;
+        }
     }
 
     // }}}
@@ -97,6 +110,14 @@ class ToOneRelationship implements ResourceStoreAccess
         }
 
         return $is_modified;
+    }
+
+    // }}}
+    // {{{ public function isSelfModified()
+
+    public function isSelfModified()
+    {
+        return $this->is_modified;
     }
 
     // }}}
