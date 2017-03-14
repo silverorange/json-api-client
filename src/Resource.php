@@ -138,8 +138,8 @@ abstract class Resource extends AbstractResource
         $relationships = [];
 
         foreach ($this->to_one_relationships as $name => $relationship) {
-            $encoded = $relationship->encodeIdentifier($options);
-            if ($encoded['data'] !== null) {
+            if ($relationship->isSelfModified()) {
+                $encoded = $relationship->encodeIdentifier($options);
                 $relationships[$name] = $encoded;
             }
         }
