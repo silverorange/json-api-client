@@ -46,9 +46,11 @@ class ToOneRelationship implements ResourceStoreAccess
     // }}}
     // {{{ public function set()
 
-    public function set(AbstractResource $resource)
+    public function set(AbstractResource $resource = null)
     {
-        if ($this->type !== $resource->getType()) {
+        if ($resource instanceof AbstractResource &&
+            $this->type !== $resource->getType()
+        ) {
             throw new InvalidResourceTypeException(
                 sprintf(
                     'Provided resource type “%s” does not match “%s”.',
