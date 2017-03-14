@@ -69,7 +69,6 @@ class ToOneRelationship implements ResourceStoreAccess
             ? $resource->getId()
             : null;
 
-
         if ($old_resource_id !== $new_resource_id) {
             $this->is_modified = true;
             $this->resource = $resource;
