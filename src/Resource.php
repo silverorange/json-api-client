@@ -439,7 +439,7 @@ abstract class Resource extends AbstractResource
     // }}}
     // {{{ protected function setToOneRelationship()
 
-    protected function setToOneRelationship($name, Resource $value)
+    protected function setToOneRelationship($name, Resource $value = null)
     {
         if ($this->hasToOneRelationship($name)) {
             $this->is_modified = true;
