@@ -61,15 +61,23 @@ class ToOneRelationship implements ResourceStoreAccess
             );
         }
 
-        $old_resource_id = ($this->resource instanceof AbstractResource)
-            ? $this->resource->getId()
-            : null;
+        $is_different_resource = (
+            $this->resource instanceof AbstractResource &&
+            $resource instanceof AbstractResource &&
+            $this->resource->getId() !== $resource->getId()
+        );
 
-        $new_resource_id = ($resource instanceof AbstractResource)
-            ? $resource->getId()
-            : null;
+        $is_setting_null = (
+            $this->resource instanceof AbstractResource &&
+            !$resource instanceof AbstractResource
+        );
 
-        if ($old_resource_id !== $new_resource_id) {
+        $is_unsetting_null = (
+            !$this->resource instanceof AbstractResource &&
+            $resource instanceof AbstractResource
+        );
+
+        if ($is_different_resource || $is_setting_null || $is_unsetting_null) {
             $this->is_modified = true;
             $this->resource = $resource;
         }
