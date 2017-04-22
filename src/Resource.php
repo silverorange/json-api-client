@@ -579,3 +579,4 @@ abstract class Resource extends AbstractResource
 
     // }}}
 }
+?>
