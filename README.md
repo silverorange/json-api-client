@@ -16,7 +16,7 @@ resources. The following APIs are provided:
 
  - `peek()` - look for a cached resource without hitting the backend server
  - `query()` - look for a resource while always hitting the backend server
- - `find()` - look for a resource using cache if available
+ - `find()` - look for a resource using cache if available, hit the backend if the cached resource is not available
  - `create()` - make a new resoure
  - `save()` - save a resource
  - `delete()` - delete a resource
