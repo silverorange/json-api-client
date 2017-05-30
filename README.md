@@ -5,7 +5,7 @@ A PHP library for working with JSON API servers.
 The following features are supported:
 
  - loading resource collections
- - loading individual resources by id
+ - loading individual resources by identifier
  - creating resources
  - saving resources
  - to one relationships
