@@ -322,6 +322,29 @@ class ResourceStore
     }
 
     // }}}
+    // {{{ public function doNonModelRequest()
+
+    /**
+     * Submits a request against a non-model resource on the server.
+     * No storage is done on the result. The caller is responsible for
+     * processing any data returned.
+     *
+     * @param string $method       the  HTTP method to use.
+     * @param string $endpoint     the endpoint to contact.
+     * @param array  $query_params optional array of extra parameters.
+     *
+     * @return string body
+     */
+    public function doNonModelRequest($method, $endpoint, array $params)
+    {
+        return $this->doRequest(
+            $method,
+            $this->getResourceAddress($endpoint),
+            $params
+        );
+    }
+
+    // }}}
     // {{{ protected function doRequest()
 
     protected function doRequest($method, $url, array $params)
