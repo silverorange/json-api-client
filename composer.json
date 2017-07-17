@@ -16,15 +16,18 @@
     "guzzlehttp/guzzle": "^6.2.2"
   },
   "require-dev": {
+    "silverorange/coding-standard": "^0.1.0",
     "squizlabs/php_codesniffer": "2.*"
   },
   "scripts": {
     "lint": [
-      "phpcs --standard=PSR2 src/"
+      "phpcs --standard=Silverorange src/"
     ],
     "beautifier": [
-      "phpcbf --standard=PSR2 src/"
-    ]
+      "phpcbf --standard=Silverorange src/"
+    ],
+    "post-install-cmd": "./vendor/bin/phpcs --config-set installed_paths vendor/silverorange/coding-standard/src",
+    "post-update-cmd": "./vendor/bin/phpcs --config-set installed_paths vendor/silverorange/coding-standard/src"
   },
   "autoload": {
     "psr-4": { "silverorange\\JsonApiClient\\" : "src/" }
