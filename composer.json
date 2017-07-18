@@ -20,9 +20,7 @@
     "squizlabs/php_codesniffer": "2.*"
   },
   "scripts": {
-    "lint": [
-      "phpcs --standard=Silverorange src/"
-    ],
+    "lint": "./vendor/bin/phpcs",
     "beautifier": [
       "phpcbf --standard=Silverorange src/"
     ],
