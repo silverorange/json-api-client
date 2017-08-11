@@ -12,6 +12,7 @@ class ResourceCollection implements ResourceStoreAccess, \Countable, \Serializab
     protected $type = null;
     protected $store = null;
     protected $collection = [];
+    protected $meta = [];
 
     // }}}
     // {{{ public function __construct()
@@ -169,6 +170,22 @@ class ResourceCollection implements ResourceStoreAccess, \Countable, \Serializab
         }
 
         return $is_modified;
+    }
+
+    // }}}
+    // {{{ public function setMeta()
+
+    public function setMeta($meta)
+    {
+        $this->meta = $meta;
+    }
+
+    // }}}
+    // {{{ public function getMeta()
+
+    public function getMeta()
+    {
+        return $this->meta;
     }
 
     // }}}
