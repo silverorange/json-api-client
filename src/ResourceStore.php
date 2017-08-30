@@ -89,6 +89,7 @@ class ResourceStore
 
         $collection = new ResourceCollection($type);
         $collection->setStore($this);
+        $collection->setMeta($body['meta']);
         $collection->decode($body['data']);
 
         foreach ($collection as $resource) {
