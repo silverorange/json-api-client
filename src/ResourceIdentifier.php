@@ -21,7 +21,7 @@ class ResourceIdentifier extends AbstractResource
 
     public function encode(array $options = [])
     {
-        return $this->encodeIndentifier($options);
+        return $this->encodeIdentifier($options);
     }
 
     // }}}
