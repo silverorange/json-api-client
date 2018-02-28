@@ -16,8 +16,7 @@
     "guzzlehttp/guzzle": "^6.2.2"
   },
   "require-dev": {
-    "silverorange/coding-standard": "^0.1.0",
-    "squizlabs/php_codesniffer": "2.*"
+    "silverorange/coding-standard": "^1.0.0"
   },
   "scripts": {
     "lint": "./vendor/bin/phpcs",
