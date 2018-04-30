@@ -4,6 +4,7 @@ namespace silverorange\JsonApiClient;
 
 use silverorange\JsonApiClient\Exception\InvalidResourceTypeException;
 use silverorange\JsonApiClient\Exception\NoResourceStoreException;
+use silverorange\JsonApiClient\Exception\ResourceNotFoundException;
 
 class ResourceCollection implements ResourceStoreAccess, \Countable, \Serializable, \IteratorAggregate
 {
@@ -66,9 +67,21 @@ class ResourceCollection implements ResourceStoreAccess, \Countable, \Serializab
             );
         }
 
-        $resource = $this->collection[$id];
-        if ($resource instanceof ResourceIdentifier) {
-            $this->add($resource->getResource());
+        $resource_id = $this->collection[$id];
+        if ($resource_id instanceof ResourceIdentifier) {
+            $resource = $resource_id->getResource();
+            if (!$resource instanceof AbstractResource) {
+                throw new ResourceNotFoundException(
+                    sprintf(
+                        'Resource “%s” with id “%s” was not found.',
+                        $this->type,
+                        $id
+                    ),
+                    0,
+                    []
+                );
+            }
+            $this->add($resource);
         }
 
         return $this->collection[$id];
