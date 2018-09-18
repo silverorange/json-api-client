@@ -221,14 +221,6 @@ abstract class Resource extends AbstractResource
                         }
 
                         $relationship->set($collection);
-                    } else {
-                        throw new InvalidPropertyException(
-                            sprintf(
-                                'Unable to set relationship “%s” on resource type “%s”',
-                                $key,
-                                $this->getType()
-                            )
-                        );
                     }
                 }
             }
@@ -334,14 +326,6 @@ abstract class Resource extends AbstractResource
             }
 
             $this->attributes[$name] = $value;
-        } else {
-            throw new InvalidPropertyException(
-                sprintf(
-                    'Unable to set attribute “%s” on resource type “%s”',
-                    $name,
-                    $this->getType()
-                )
-            );
         }
     }
 
