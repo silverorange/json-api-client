@@ -372,6 +372,24 @@ abstract class Resource extends AbstractResource
     // }}}
 
     // Relationship methods
+    // {{{ public function getRelationshipId()
+
+    public function getRelationshipId($key)
+    {
+        if ($this->hasToOneRelationship($key)) {
+            return $this->getToOneRelationship($key)->getId();
+        }
+
+        throw new InvalidPropertyException(
+            sprintf(
+                'Unable to get relationship id for “%s” on resource type “%s”',
+                $key,
+                $this->getType()
+            )
+        );
+    }
+
+    // }}}
     // {{{ protected function hasRelationship()
 
     protected function hasRelationship($name)
