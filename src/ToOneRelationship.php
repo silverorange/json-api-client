@@ -43,6 +43,18 @@ class ToOneRelationship implements ResourceStoreAccess
     }
 
     // }}}
+    // {{{ public function getId()
+
+    public function getId()
+    {
+        if ($this->resource instanceof AbstractResource) {
+            return $this->resource->getId();
+        }
+
+        return null;
+    }
+
+    // }}}
     // {{{ public function set()
 
     public function set(AbstractResource $resource = null)
